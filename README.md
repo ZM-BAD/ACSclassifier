@@ -7,4 +7,4 @@
 本研究通过深度注意力机制来预测疾病，模型架构大致如下：
 
 
-![easonjim](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/idea.tif)
+![easonjim](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/idea.jpg)
