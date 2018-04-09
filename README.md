@@ -23,7 +23,7 @@
 
 除了算法模型以外，该研究最终还要以良好的UI呈现给用户。**最后的软件界面示意图如下**：
 
-![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/Panel.png)
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/panel.png)
 
 
 
