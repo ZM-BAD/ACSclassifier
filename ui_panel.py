@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+__author__ = 'ZM-BAD'
+
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
