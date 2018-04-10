@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+__author__ = 'ZM-BAD'
+
 import numpy as np
 import sklearn.preprocessing as prep
 import tensorflow as tf
@@ -13,6 +16,13 @@ def xavier_init(fan_in, fan_out, constant=1):
 class AdditiveGaussianNoiseAutoencoder(object):
     def __init__(self, n_input, n_hidden, transfer_function=tf.nn.softplus, optimizer=tf.train.AdamOptimizer(),
                  scale=0.1):
+        """
+        :param n_input: 输入变量数
+        :param n_hidden: 隐含层节点数
+        :param transfer_function: 隐含层激活函数
+        :param optimizer: 优化器
+        :param scale: 高斯噪声系数
+        """
         self.n_input = n_input
         self.n_hidden = n_hidden
         self.transfer = transfer_function
@@ -43,7 +53,7 @@ class AdditiveGaussianNoiseAutoencoder(object):
         all_weights['b2'] = tf.Variable(tf.zeros([self.n_input], dtype=tf.float32))
         return all_weights
 
-    # 定义损失cost及执行一步训练的函数partial_fit
+    # 定义损失cost及执行一步训练的函数partial_fitf
     def partial_fit(self, x):
         cost, opt = self.sess.run((self.cost, self.optimizer), feed_dict={self.x: x, self.scale: self.training_scale})
         return cost
