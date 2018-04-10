@@ -8,6 +8,13 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 
 def xavier_init(fan_in, fan_out, constant=1):
+    """
+    实现的是标准均匀分布的Xaiver初始化器
+    :param fan_in: 输入节点的数量
+    :param fan_out: 输出节点的数量
+    :param constant:
+    :return: 返回的是一个随机张量
+    """
     low = -constant * np.sqrt(6.0 / (fan_in + fan_out))
     high = constant * np.sqrt(6.0 / (fan_in + fan_out))
     return tf.random_uniform((fan_in, fan_out), minval=low, maxval=high, dtype=tf.float32)
