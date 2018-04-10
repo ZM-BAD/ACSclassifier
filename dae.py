@@ -7,13 +7,19 @@ import tensorflow as tf
 
 
 def xavier_init(fan_in, fan_out, constant=1):
+    """
+    :param fan_in: 输入节点数量
+    :param fan_out: 输出节点数量
+    :param constant:
+    :return:
+    """
     low = -constant * np.sqrt(6.0 / (fan_in + fan_out))
     high = constant * np.sqrt(6.0 / (fan_in + fan_out))
     return tf.random_uniform((fan_in, fan_out), minval=low, maxval=high, dtype=tf.float32)
 
 
 # DAE中最常使用的噪声是加性高斯噪声(Additive Gaussian Noise)
-class AdditiveGaussianNoiseAutoencoder(object):
+class DAE(object):
     def __init__(self, n_input, n_hidden, transfer_function=tf.nn.softplus, optimizer=tf.train.AdamOptimizer(),
                  scale=0.1):
         """
