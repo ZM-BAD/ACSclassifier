@@ -8,7 +8,7 @@
 模型架构大致如下：
 
 
-![easonjim](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/idea.jpg)
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/idea.jpg)
 
 
 
