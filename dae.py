@@ -53,7 +53,7 @@ class AdditiveGaussianNoiseAutoencoder(object):
         all_weights['b2'] = tf.Variable(tf.zeros([self.n_input], dtype=tf.float32))
         return all_weights
 
-    # 定义损失cost及执行一步训练的函数partial_fitf
+    # 定义损失cost及执行一步训练的函数partial_fit
     def partial_fit(self, x):
         cost, opt = self.sess.run((self.cost, self.optimizer), feed_dict={self.x: x, self.scale: self.training_scale})
         return cost
