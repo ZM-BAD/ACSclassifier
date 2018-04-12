@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ZM-BAD'
-
+from control import *
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
@@ -32,6 +32,8 @@ class UIPanel(object):
 
         Button(self.root, text="确定", font=(ui_font, 10), width=5,
                command=self._confirm_click).place(x=800, y=40, anchor=W)
+        Button(self.root, text="清零", font=(ui_font, 10), width=5,
+               command=self._clear_click).place(x=700, y=40, anchor=W)
 
     def _place_text(self):
         # 以下分别为F1-score, recall, precision三个参数
@@ -45,7 +47,19 @@ class UIPanel(object):
         self.recall.place(x=790, y=550, anchor=W)
 
     def _confirm_click(self):
-        pass
+        # 首先将三个text里面原有的内容都清零，不管原来有没有
+        self.f1_score.delete(1.0, END)
+        self.precision.delete(1.0, END)
+        self.recall.delete(1.0, END)
+        f1_score, precision, recall = calc_numerical_result(self.file_path)
+        self.f1_score.insert(END, f1_score)
+        self.precision.insert(END, precision)
+        self.recall.insert(END, recall)
+
+    def _clear_click(self):
+        self.f1_score.delete(1.0, END)
+        self.precision.delete(1.0, END)
+        self.recall.delete(1.0, END)
 
     def show(self):
         self.root.mainloop()
