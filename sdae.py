@@ -1,76 +1,147 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ZM-BAD'
 
-import numpy as np
 import tensorflow as tf
+import numpy as np
 from dae import DAE
 
-# 定义训练参数
-training_epochs = 5
-batch_size = 1000
-display_step = 1
-stack_size = 3  # 栈中包含3个dae
-hidden_size = [20, 20, 20]
-input_n_size = [3, 200, 200]
 
+# SDAE是基于DAE实现的，其中DAE使用的噪声为加性高斯噪声
+class SDAE(object):
+    def __init__(self, n_input, hiddens, transfer_function=tf.nn.softplus, scale=0.1, name='sdae', sess=None,
+                 optimizer=tf.train.AdamOptimizer(), epochs=1000):
+        """
+        :param n_input: 输入节点数
+        :param hiddens: 每个隐藏层中的神经元数，是一个list
+        :param transfer_function: transfer(activation) function
+        :param scale: 高斯噪声系数
+        :param optimizer: 优化器
+        :param epochs: 训练的迭代轮数
+        :param name: 命名
+        :param sess: 会话，加入此参数用来确保所有的DAE都被同一个Session管理
+        """
+        self.name = name
+        with tf.variable_scope(self.name):
+            self.n_input = n_input
+            self.stacks = len(hiddens)
+            self.scale = scale
+            self.epochs = epochs
+            self.x = tf.placeholder(tf.float32, [None, n_input], name="input")
 
-def get_random_block_from_data(data, batch_size):
-    start_index = np.random.randint(0, len(data) - batch_size)
-    return data[start_index:(start_index + batch_size)]
+            self.transfer = transfer_function
+            self.optimizer = optimizer
 
+            self.sess = sess if sess is not None else tf.Session()
 
-# 建立sdae图，构建SDAE的一种想法
-sdae = []
-for i in range(stack_size):
-    if i == 0:
-        dae = DAE(n_input=2,
-                  n_hidden=hidden_size[i],
-                  activation_function=tf.nn.softplus,
-                  optimizer=tf.train.AdamOptimizer(learning_rate=0.001),
-                  scale=0.01)
-        dae.initialize_weights()
-        sdae.append(dae)
-    else:
-        dae = DAE(n_input=hidden_size[i - 1],
-                  n_hidden=hidden_size[i],
-                  activation_function=tf.nn.softplus,
-                  optimizer=tf.train.AdamOptimizer(learning_rate=0.001),
-                  scale=0.01)
-        dae.initialize_weights()
-        sdae.append(dae)
+            self.daes = self._init_sdae(self.n_input, hiddens)
 
-W = []
-b = []
-Hidden_feature = []  # 保存每个dae的特征
-X_train = np.array([0])
-for j in range(stack_size):
-    # 输入
-    if j == 0:
-        X_train = np.array(pd.train_set)
-        X_test = np.array(pd.test_set)
-    else:
-        X_train_pre = X_train
-        X_train = sdae[j - 1].transform(X_train_pre)
-        print(X_train.shape)
-        Hidden_feature.append(X_train)
+            self.hidden = self.x
+            for dae in self.daes:
+                self.hidden = dae(self.hidden)
 
-    # 训练
-    for epoch in range(training_epochs):
-        avg_cost = 0.
-        total_batch = int(X_train.shape[1] / batch_size)
-        # Loop over all batches
-        for k in range(total_batch):
-            batch_xs = get_random_block_from_data(X_train, batch_size)
+            self.rec = self.hidden
+            for dae in reversed(self.daes):
+                self.rec = dae.decode_func(self.rec)
 
-            # Fit training using batch data
-            cost = sdae[j].partial_fit(batch_xs)
-            # Compute average loss
-            avg_cost += cost / X_train.shape[1] * batch_size
+            init = tf.global_variables_initializer()
+            self.sess.run(init)
 
-        print("Epoch:", '%04d' % (epoch + 1), "cost=", "{:.9f}".format(avg_cost))
+    def __call__(self, x):
+        """
+        as a component of parent model
 
-    # 保存每个ae的参数
-    weight = sdae[j].get_weights()
-    # print (weight)
-    W.append(weight)
-    b.append(sdae[j].get_biases())
+        :param x: input tensor
+        :return: hidden representation tensor
+        """
+        x_copy = x
+        for dae in self.daes:
+            x_copy = dae(x_copy)
+        return x_copy
+
+    def _init_sdae(self, n_input, hiddens):
+        """
+        多个sdae叠加形成dae，叠加的方式为建立一个list
+        :param n_input: 输入节点数
+        :param hiddens: list of num of hidden layers
+        :return: layers of dae
+        """
+        sdae = []
+        for i in range(len(hiddens)):
+            if i is 0:
+                dae = DAE(n_input, hiddens[i],
+                          transfer_function=self.transfer,
+                          scale=self.scale,
+                          optimizer=self.optimizer,
+                          name="dae_{}".format(i),
+                          sess=self.sess)
+                sdae.append(dae)
+            else:
+                dae = DAE(hiddens[i - 1], hiddens[i],
+                          transfer_function=self.transfer,
+                          scale=self.scale,
+                          optimizer=self.optimizer,
+                          name="dae_{}".format(i),
+                          sess=self.sess)
+                sdae.append(dae)
+        return sdae
+
+    def pre_train(self, data_set, batch_size=128):
+        """
+        预训练模型，所谓"预"是针对提取特征之后的训练
+        :param data.read_data.DataSet data_set: the training data set
+        :param batch_size: `batch size` of data
+        """
+        for i in range(self.stacks):
+            while data_set.epoch_completed < self.epochs:
+                x, _ = data_set.next_batch(batch_size)
+                self.daes[i].train_op(x)
+            x = self.daes[i].encode(data_set.examples)
+            data_set = DataSet(x, data_set.labels)
+
+    def encode(self, x):
+        """get the hidden representation
+
+        :param x: data input
+        :return: hidden representation
+        """
+        return self.sess.run(self.hidden, feed_dict={self.x: x})
+
+    def reconstruct(self, x):
+        """get the reconstructed data
+
+        :param x: data input
+        :return: reconstructed data
+        """
+        return self.sess.run(self.rec, feed_dict={self.x: x})
+
+# if __name__ == "__main__":
+#     input_n = 20
+#     hiddens_n = [10, 5]
+#     sdae = SDAE(input_n, hiddens_n)
+#     train_x = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1]])
+#     text_x = np.array([[1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1]])
+#     data = DataSet(train_x, np.arange(train_x.shape[0]))
+#     sdae.pre_train(data, 10)
+#
+#     rec_x = sdae.reconstruct(text_x)
+#     print(rec_x)

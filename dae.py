@@ -27,6 +27,8 @@ class DAE(object):
         :param transfer_function: 隐含层激活函数，transfer(activation)function
         :param optimizer: 优化器
         :param scale: 高斯噪声系数
+        :param name: 命名
+        :param sess: 会话，加入此参数用来确保所有的DAE都被同一个Session管理
         """
         self.name = name
         with tf.variable_scope(self.name):
