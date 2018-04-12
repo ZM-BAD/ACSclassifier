@@ -20,7 +20,7 @@ def xavier_init(fan_in, fan_out, constant=1):
 # DAE中最常使用的噪声是加性高斯噪声(Additive Gaussian Noise)
 class DAE(object):
     def __init__(self, n_input, n_hidden, transfer_function=tf.nn.softplus, optimizer=tf.train.AdamOptimizer(),
-                 scale=0.1):
+                 scale=0.1, name='dae', sess=None):
         """
         :param n_input: 输入变量数
         :param n_hidden: 隐含层节点数，即精简、抽取后的特征数
@@ -28,32 +28,31 @@ class DAE(object):
         :param optimizer: 优化器
         :param scale: 高斯噪声系数
         """
-        self.n_input = n_input
-        self.n_hidden = n_hidden
-        self.transfer = transfer_function
-        self.scale = tf.placeholder(tf.float32)
-        self.training_scale = scale
-        network_weights = self.initialize_weights()
-        self.weights = network_weights
+        self.name = name
+        with tf.variable_scope(self.name):
+            self.n_input = n_input
+            self.n_hidden = n_hidden
+            self.transfer = transfer_function
+            self.scale = tf.placeholder(tf.float32)
+            self.training_scale = scale
+            network_weights = self.initialize_weights()
+            self.weights = network_weights
 
-        # 网络结构
-        self.x = tf.placeholder(tf.float32, [None, self.n_input])
-        # w1 隐含层的权重
-        # b1 隐含层的偏置
-        # w2 输出层的权重
-        # b2 输出层的偏置
-        self.hidden = self.transfer(
-            tf.add(tf.matmul(self.x + scale * tf.random_normal((n_input,)), self.weights['w1']),
-                   self.weights['b1']))
-        self.reconstruction = tf.add(tf.matmul(self.hidden, self.weights['w2']), self.weights['b2'])
+            # 网络结构
+            self.x = tf.placeholder(tf.float32, [None, self.n_input])
+            # w1 隐含层的权重，b1 隐含层的偏置，w2 输出层的权重，b2 输出层的偏置
+            self.hidden = self.transfer(
+                tf.add(tf.matmul(self.x + scale * tf.random_normal((n_input,)), self.weights['w1']),
+                       self.weights['b1']))
+            self.reconstruction = tf.add(tf.matmul(self.hidden, self.weights['w2']), self.weights['b2'])
 
-        # 自编码器的损失函数
-        self.cost = 0.5 * tf.reduce_sum(tf.pow(tf.subtract(self.reconstruction, self.x), 2.0))
-        self.optimizer = optimizer.minimize(self.cost)
+            # 自编码器的损失函数
+            self.cost = 0.5 * tf.reduce_sum(tf.pow(tf.subtract(self.reconstruction, self.x), 2.0))
+            self.optimizer = optimizer.minimize(self.cost)
 
-        init = tf.global_variables_initializer()
-        self.sess = tf.Session()
-        self.sess.run(init)
+            init = tf.global_variables_initializer()
+            self.sess = sess if sess is not None else tf.Session()
+            self.sess.run(init)
 
     # 参数初始化函数，要初始化4个参数，w1，b1，w2，b2
     def initialize_weights(self):
