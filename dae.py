@@ -19,18 +19,18 @@ def xavier_init(fan_in, fan_out, constant=1):
 
 # DAE中最常使用的噪声是加性高斯噪声(Additive Gaussian Noise)
 class DAE(object):
-    def __init__(self, n_input, n_hidden, activation_function=tf.nn.softplus, optimizer=tf.train.AdamOptimizer(),
+    def __init__(self, n_input, n_hidden, transfer_function=tf.nn.softplus, optimizer=tf.train.AdamOptimizer(),
                  scale=0.1):
         """
         :param n_input: 输入变量数
         :param n_hidden: 隐含层节点数，即精简、抽取后的特征数
-        :param activation_function: 隐含层激活函数
+        :param transfer_function: 隐含层激活函数，transfer(activation)function
         :param optimizer: 优化器
         :param scale: 高斯噪声系数
         """
         self.n_input = n_input
         self.n_hidden = n_hidden
-        self.activation = activation_function
+        self.transfer = transfer_function
         self.scale = tf.placeholder(tf.float32)
         self.training_scale = scale
         network_weights = self.initialize_weights()
@@ -42,7 +42,7 @@ class DAE(object):
         # b1 隐含层的偏置
         # w2 输出层的权重
         # b2 输出层的偏置
-        self.hidden = self.activation(
+        self.hidden = self.transfer(
             tf.add(tf.matmul(self.x + scale * tf.random_normal((n_input,)), self.weights['w1']),
                    self.weights['b1']))
         self.reconstruction = tf.add(tf.matmul(self.hidden, self.weights['w2']), self.weights['b2'])
@@ -92,3 +92,29 @@ class DAE(object):
     # 获取隐藏层偏置b1
     def get_biases(self):
         return self.sess.run(self.weights['b1'])
+
+
+if __name__ == "__main__":
+    print("DAE test")
+    input_n = 10
+    hidden_n = 5
+    train_x = np.array([[1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+                        [1, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+                        [1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 1, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 1, 1, 1, 0, 1],
+                        [0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 1, 1, 0, 1, 1]])
+    test_x = np.array([[0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 1, 1, 1, 1]])
+
+    dae = DAE(input_n, hidden_n)
+
+    for i in range(1000):
+        dae.partial_fit(train_x)
+
+    new = dae.reconstruct(test_x)
+    print(new)
