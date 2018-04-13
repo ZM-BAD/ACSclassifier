@@ -3,6 +3,7 @@ __author__ = 'ZM-BAD'
 from control import *
 from tkinter import *
 from tkinter.filedialog import askopenfilename
+from PIL import Image, ImageTk
 
 ui_font = 'Microsoft YaHei UI'
 text_font = 'Consolas'
@@ -18,6 +19,7 @@ class UIPanel(object):
         self._place_text()
         self._place_labels()
         self._place_buttons()
+        self._place_image()
 
     def _place_labels(self):
         Label(self.root, textvariable=self.file_path, font=(ui_font, 12)).place(x=200, y=40, anchor=W)
@@ -45,6 +47,13 @@ class UIPanel(object):
 
         self.recall = Text(height=1, width=10, font=(text_font, 18))
         self.recall.place(x=790, y=550, anchor=W)
+
+    def _place_image(self):
+        roc_curve = Image.open('./resource/ROC-curve.png')
+        render = ImageTk.PhotoImage(roc_curve)
+        img = Label(self.root, image=render)
+        img.image = render
+        img.place(x=200, y=100)
 
     def _confirm_click(self):
         # 首先将三个text里面原有的内容都清零，不管原来有没有
