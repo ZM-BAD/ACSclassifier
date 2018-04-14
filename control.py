@@ -11,3 +11,10 @@ def calc_numerical_result(dataset_file_path):
     precision = "precision"
     recall = "recall"
     return f1_score, precision, recall
+
+
+def get_sample_info(dataset_file_path):
+    train_num = 100
+    test_num = 100
+    time = "100"
+    return train_num, test_num, time
