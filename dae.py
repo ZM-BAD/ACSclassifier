@@ -10,7 +10,7 @@ def xavier_init(fan_in, fan_out, constant=1):
     :param fan_in: 输入节点数量
     :param fan_out: 输出节点数量
     :param constant: 系数常量(个人理解)
-    :return:
+    :return: 标准的均匀分布
     """
     low = -constant * np.sqrt(6.0 / (fan_in + fan_out))
     high = constant * np.sqrt(6.0 / (fan_in + fan_out))
