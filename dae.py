@@ -85,7 +85,7 @@ class DAE(object):
     def encode_func(self, x):
         # different with 'encode', this method accepts tensor and return tensor
         return self.transfer(
-            tf.add(tf.matmul(x, self.scale * tf.random_normal((self.n_input,)), self.weights['w1']),
+            tf.add(tf.matmul(x + self.training_scale * tf.random_normal((self.n_input,)), self.weights['w1']),
                    self.weights['b1']))
 
     def decode_func(self, hidden):
