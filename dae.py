@@ -37,8 +37,7 @@ class DAE(object):
             self.transfer = transfer_function
             self.scale = tf.placeholder(tf.float32)
             self.training_scale = scale
-            network_weights = self.initialize_weights()
-            self.weights = network_weights
+            self.weights = self.initialize_weights()
 
             # 网络结构
             self.x = tf.placeholder(tf.float32, [None, self.n_input])
@@ -74,14 +73,24 @@ class DAE(object):
     def calc_total_cost(self, x):
         return self.sess.run(self.cost, feed_dict={self.x: x, self.scale: self.training_scale})
 
-    # 整个DAE其实就两点，transform提取特征，generate通过高阶特征还原数据
-    def transform(self, x):
+    # 整个DAE其实就两点，encode提取特征，decode通过高阶特征还原数据
+    def encode(self, x):
         return self.sess.run(self.hidden, feed_dict={self.x: x, self.scale: self.training_scale})
 
-    def generate(self, hidden=None):
+    def decode(self, hidden=None):
         if hidden is None:
             hidden = np.random.normal(size=self.weights["b1"])
         return self.sess.run(self.reconstruction, feed_dict={self.hidden: hidden})
+
+    def encode_func(self, x):
+        # different with 'encode', this method accepts tensor and return tensor
+        return self.transfer(
+            tf.add(tf.matmul(x, self.scale * tf.random_normal((self.n_input,)), self.weights['w1']),
+                   self.weights['b1']))
+
+    def decode_func(self, hidden):
+        # different with 'decode', this method accepts tensor and return tensor
+        return self.transfer(tf.add(tf.matmul(hidden, self.weights['w2']), self.weights['b2']))
 
     def reconstruct(self, x):
         return self.sess.run(self.reconstruction, feed_dict={self.x: x, self.scale: self.training_scale})
