@@ -26,37 +26,35 @@ class SDAE(object):
             self.stacks = len(hiddens)
             self.scale = scale
             self.epochs = epochs
-            self.x = tf.placeholder(tf.float32, [None, n_input], name="input")
-
             self.transfer = transfer_function
             self.optimizer = optimizer
-
             self.sess = sess if sess is not None else tf.Session()
 
-            self.daes = self._init_sdae(self.n_input, hiddens)
-
+            # 网络结构
+            self.sdae = self._init_sdae(self.n_input, hiddens)
+            self.x = tf.placeholder(tf.float32, [None, n_input], name="input")
             self.hidden = self.x
-            for dae in self.daes:
-                self.hidden = dae(self.hidden)
+            for dae in self.sdae:
+                self.hidden = dae.decode_func(self.hidden)
 
             self.rec = self.hidden
-            for dae in reversed(self.daes):
+            for dae in reversed(self.sdae):
                 self.rec = dae.decode_func(self.rec)
 
             init = tf.global_variables_initializer()
             self.sess.run(init)
 
-    def __call__(self, x):
-        """
-        as a component of parent model
-
-        :param x: input tensor
-        :return: hidden representation tensor
-        """
-        x_copy = x
-        for dae in self.daes:
-            x_copy = dae(x_copy)
-        return x_copy
+    # def __call__(self, x):
+    #     """
+    #     as a component of parent model
+    #
+    #     :param x: input tensor
+    #     :return: hidden representation tensor
+    #     """
+    #     x_copy = x
+    #     for dae in self.sdae:
+    #         x_copy = dae(x_copy)
+    #     return x_copy
 
     def _init_sdae(self, n_input, hiddens):
         """
@@ -65,7 +63,7 @@ class SDAE(object):
         :param hiddens: list of num of hidden layers
         :return: layers of dae
         """
-        sdae = []
+        stacked_dae = []
         for i in range(len(hiddens)):
             if i is 0:
                 dae = DAE(n_input, hiddens[i],
@@ -74,7 +72,7 @@ class SDAE(object):
                           optimizer=self.optimizer,
                           name="dae_{}".format(i),
                           sess=self.sess)
-                sdae.append(dae)
+                stacked_dae.append(dae)
             else:
                 dae = DAE(hiddens[i - 1], hiddens[i],
                           transfer_function=self.transfer,
@@ -82,8 +80,8 @@ class SDAE(object):
                           optimizer=self.optimizer,
                           name="dae_{}".format(i),
                           sess=self.sess)
-                sdae.append(dae)
-        return sdae
+                stacked_dae.append(dae)
+        return stacked_dae
 
     def pre_train(self, data_set, batch_size=128):
         """
@@ -94,54 +92,55 @@ class SDAE(object):
         for i in range(self.stacks):
             while data_set.epoch_completed < self.epochs:
                 x, _ = data_set.next_batch(batch_size)
-                self.daes[i].train_op(x)
-            x = self.daes[i].encode(data_set.examples)
+                self.sdae[i].partial_fit(x)
+            x = self.sdae[i].encode(data_set.examples)
             data_set = DataSet(x, data_set.labels)
 
     def encode(self, x):
-        """get the hidden representation
-
+        """
+        get the hidden representation
         :param x: data input
         :return: hidden representation
         """
         return self.sess.run(self.hidden, feed_dict={self.x: x})
 
     def reconstruct(self, x):
-        """get the reconstructed data
-
+        """
+        get the reconstructed data
         :param x: data input
         :return: reconstructed data
         """
         return self.sess.run(self.rec, feed_dict={self.x: x})
 
-# if __name__ == "__main__":
-#     input_n = 20
-#     hiddens_n = [10, 5]
-#     sdae = SDAE(input_n, hiddens_n)
-#     train_x = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1]])
-#     text_x = np.array([[1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1]])
-#     data = DataSet(train_x, np.arange(train_x.shape[0]))
-#     sdae.pre_train(data, 10)
-#
-#     rec_x = sdae.reconstruct(text_x)
-#     print(rec_x)
+
+if __name__ == "__main__":
+    input_n = 20
+    hiddens_n = [10, 5]
+    sdae = SDAE(input_n, hiddens_n)
+    train_x = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1]])
+    text_x = np.array([[1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1]])
+    data = DataSet(train_x, np.arange(train_x.shape[0]))
+    sdae.pre_train(data, 10)
+
+    rec_x = sdae.reconstruct(text_x)
+    print(rec_x)
