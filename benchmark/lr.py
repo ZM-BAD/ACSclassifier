@@ -1,11 +1,16 @@
 # -*- coding:utf-8 -*-
 __author__ = 'ZM-BAD'
 
+# 这个LR分类是用来做benchmark的，但是现在这个分类的结果令人十分震惊
+# 最后print的acc竟然不足10%，这说明代码肯定错误了
+# 而且一定是低级错误。但是现在没能排查出来，头很大
+
+
 import tensorflow as tf
 from model.data import read_from_csv
 from sklearn.cross_validation import train_test_split
 
-# 对出血时间进行二分类
+# 对出血事件进行二分类
 sample, bleed_label, _ = read_from_csv()
 n_class = 2
 n_feature = 442
