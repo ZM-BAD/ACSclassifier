@@ -11,7 +11,7 @@ def read_from_csv():
     :return: samples and labels in ndarray
     """
     # There're 2930 samples and 442 features in dataset.csv
-    reader = csv.reader(open('C:/Users/ZM-BAD/PycharmProjects/ACSclassifier/resource/dataset.csv', encoding='gbk'))
+    reader = csv.reader(open('../resource/dataset.csv', encoding='gbk'))
     all_data = np.zeros([2930, 444])
     bleed_label = np.zeros([2930, 2])  # bleed happen=(1, 0), not happen=(0, 1)
     ischemic_label = np.zeros([2930, 2])  # ischemic happen=(1, 0), not happen=(0, 1)
