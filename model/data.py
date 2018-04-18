@@ -8,11 +8,14 @@ import numpy as np
 
 # 从dataset.csv中读取数据
 def read_from_csv():
+    """
+    :return: sample and label in ndarray
+    """
     # dataset.csv文件中一共有
     # 2930个数据样本
     # 442个feature
 
-    reader = csv.reader(open('./resource/dataset.csv', encoding='gbk'))
+    reader = csv.reader(open('C:/Users/ZM-BAD/PycharmProjects/ACSclassifier/resource/dataset.csv', encoding='gbk'))
     data = np.zeros([2930, 444])  # 储存全部的数据，先把所有的数据都读进来
     label = np.zeros([2930, 4])  # 所有样本的标签
 
@@ -34,4 +37,6 @@ def read_from_csv():
 
     sample = np.zeros([2930, 442])  # 只存放样本，不含标签
     for i in range(2930):
-        sample[i, 0:442] = data[2:444]
+        sample[i, 0:442] = data[i, 2:444]
+
+    return sample, label
