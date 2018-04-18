@@ -19,7 +19,7 @@ class UIPanel(object):
         self.root = Tk()
         self.root.geometry('1000x720')
         self.root.title('急性冠脉综合征主要不良心血管事件预测系统')
-        self.file_path = StringVar(value="C:/Users/ZM-BAD")  # 显示选择的文件的路径
+        self.file_path = StringVar(value="C:/Users/ZM-BAD")  # Show the file pathname
         self._place_text()
         self._place_labels()
         self._place_buttons()
@@ -83,7 +83,7 @@ class UIPanel(object):
         ischemic.place(x=550, y=130, anchor=NW)
 
     def _confirm_click(self):
-        # 首先将text里面原有的内容都清零，不管原来有没有
+        # Delete origin values in text-box
         self.bleed_f1_score.delete(1.0, END)
         self.bleed_precision.delete(1.0, END)
         self.bleed_recall.delete(1.0, END)
@@ -91,7 +91,7 @@ class UIPanel(object):
         self.ischemic_precision.delete(1.0, END)
         self.ischemic_recall.delete(1.0, END)
 
-        # 得到新的值，然后写进去
+        # Get new values and write it
         bleed_f1_score, bleed_precision, bleed_recall = calc_numerical_result(self.file_path)
         ischemic_f1_score, ischemic_precision, ischemic_recall = calc_numerical_result(self.file_path)
         self.bleed_f1_score.insert(END, bleed_f1_score)
