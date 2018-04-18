@@ -5,7 +5,7 @@ from tkinter.filedialog import askopenfilename
 
 from PIL import Image, ImageTk
 
-from control import *
+from model.control import *
 
 ui_font = 'Microsoft YaHei UI'
 text_font = 'Consolas'

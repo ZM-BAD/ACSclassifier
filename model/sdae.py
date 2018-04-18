@@ -4,7 +4,7 @@ __author__ = 'ZM-BAD'
 import numpy as np
 import tensorflow as tf
 
-from dae import DAE
+from model.dae import DAE
 
 
 # SDAE是基于DAE实现的，其中DAE使用的噪声为加性高斯噪声

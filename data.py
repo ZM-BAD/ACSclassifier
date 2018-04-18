@@ -31,3 +31,7 @@ def read_from_csv():
             label[i, 2] = 1
         else:  # 缺血，出血
             label[i, 3] = 1
+
+    sample = np.zeros([2930, 442])  # 只存放样本，不含标签
+    for i in range(2930):
+        sample[i, 0:442] = data[2:444]
