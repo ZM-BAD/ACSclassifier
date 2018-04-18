@@ -46,7 +46,7 @@ class SDAE(object):
     def _init_sdae(self, n_input, hiddens):
         """
         多个sdae叠加形成dae，叠加的方式为建立一个list
-        :param n_input: 输入节点数
+        :param n_input: number of input
         :param hiddens: list of num of hidden layers
         :return: layers of dae
         """
