@@ -1,16 +1,12 @@
 # -*- coding:utf-8 -*-
 __author__ = 'ZM-BAD'
 
-# 这个LR分类是用来做benchmark的，但是现在这个分类的结果令人十分震惊
-# 最后print的acc竟然不足10%，这说明代码肯定错误了
-# 而且一定是低级错误。但是现在没能排查出来，头很大
-
-
 import tensorflow as tf
 from model.data import read_from_csv
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
+from model.evaluate import evaluate
 
-# 对出血事件进行二分类
+# Classification of bleeding events
 sample, bleed_label, _ = read_from_csv()
 n_class = 2
 n_feature = 442
@@ -20,23 +16,31 @@ x = tf.placeholder(tf.float32, [None, n_feature])
 W = tf.Variable(tf.zeros([n_feature, n_class]))
 b = tf.Variable(tf.zeros([n_class]))
 
-y = tf.nn.softmax(tf.matmul(x, W) + b)
+y = tf.matmul(x, W) + b
+pred = tf.nn.softmax(y)
 
 y_ = tf.placeholder(tf.float32, [None, n_class])
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
+cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
 
-train_step = tf.train.GradientDescentOptimizer(0.1).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
 
 tf.global_variables_initializer().run()
 
+# split train set and test set
 x_train, x_test, y_train, y_test = train_test_split(sample, bleed_label, test_size=0.3, random_state=0)
 
 for i in range(1000):
     batch_xs, batch_ys = x_train, y_train
-    train_step.run({x: batch_xs, y_: batch_ys})
+    _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: batch_xs, y_: batch_ys})
+    # print(loss)
 
-correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y_, 1))
 
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 print(accuracy.eval({x: x_test, y_: y_test}))
+
+#
+# f1_score, recall, precision, auc = evaluate(y_test, tf.nn.softmax(y_test))
+# print(f1_score, recall, precision)
+
