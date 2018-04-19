@@ -32,13 +32,13 @@ class UIPanel(object):
         Label(self.root, text="缺血事件: ", font=(ui_font, 20)).place(x=700, y=90, anchor=W)
 
         # 出血事件
-        Label(self.root, text="F1-score: ", font=(ui_font, 13)).place(x=150, y=570, anchor=W)
-        Label(self.root, text="Precision: ", font=(ui_font, 13)).place(x=150, y=620, anchor=W)
-        Label(self.root, text="Recall: ", font=(ui_font, 13)).place(x=150, y=670, anchor=W)
+        Label(self.root, text="F1-score: ", font=(ui_font, 13)).place(x=120, y=570, anchor=W)
+        Label(self.root, text="Precision: ", font=(ui_font, 13)).place(x=120, y=620, anchor=W)
+        Label(self.root, text="Recall: ", font=(ui_font, 13)).place(x=120, y=670, anchor=W)
         # 缺血事件
-        Label(self.root, text="F1-score: ", font=(ui_font, 13)).place(x=650, y=570, anchor=W)
-        Label(self.root, text="Precision: ", font=(ui_font, 13)).place(x=650, y=620, anchor=W)
-        Label(self.root, text="Recall: ", font=(ui_font, 13)).place(x=650, y=670, anchor=W)
+        Label(self.root, text="F1-score: ", font=(ui_font, 13)).place(x=620, y=570, anchor=W)
+        Label(self.root, text="Precision: ", font=(ui_font, 13)).place(x=620, y=620, anchor=W)
+        Label(self.root, text="Recall: ", font=(ui_font, 13)).place(x=620, y=670, anchor=W)
 
     def _place_buttons(self):
         Button(self.root, text='选择', font=(ui_font, 10), width=5,
@@ -48,23 +48,23 @@ class UIPanel(object):
                command=self._confirm_click).place(x=800, y=40, anchor=W)
 
     def _place_text(self):
-        self.bleed_f1_score = Text(height=1, width=10, font=(text_font, 13))
-        self.bleed_f1_score.place(x=250, y=570, anchor=W)
+        self.bleed_f1_score = Text(height=1, width=15, font=(text_font, 13))
+        self.bleed_f1_score.place(x=230, y=570, anchor=W)
 
-        self.bleed_precision = Text(height=1, width=10, font=(text_font, 13))
-        self.bleed_precision.place(x=250, y=620, anchor=W)
+        self.bleed_precision = Text(height=1, width=15, font=(text_font, 13))
+        self.bleed_precision.place(x=230, y=620, anchor=W)
 
-        self.bleed_recall = Text(height=1, width=10, font=(text_font, 13))
-        self.bleed_recall.place(x=250, y=670, anchor=W)
+        self.bleed_recall = Text(height=1, width=15, font=(text_font, 13))
+        self.bleed_recall.place(x=230, y=670, anchor=W)
 
-        self.ischemic_f1_score = Text(height=1, width=10, font=(text_font, 13))
-        self.ischemic_f1_score.place(x=750, y=570, anchor=W)
+        self.ischemic_f1_score = Text(height=1, width=15, font=(text_font, 13))
+        self.ischemic_f1_score.place(x=730, y=570, anchor=W)
 
-        self.ischemic_precision = Text(height=1, width=10, font=(text_font, 13))
-        self.ischemic_precision.place(x=750, y=620, anchor=W)
+        self.ischemic_precision = Text(height=1, width=15, font=(text_font, 13))
+        self.ischemic_precision.place(x=730, y=620, anchor=W)
 
-        self.ischemic_recall = Text(height=1, width=10, font=(text_font, 13))
-        self.ischemic_recall.place(x=750, y=670, anchor=W)
+        self.ischemic_recall = Text(height=1, width=15, font=(text_font, 13))
+        self.ischemic_recall.place(x=730, y=670, anchor=W)
 
     def _place_roc_image(self):
         bleed_origin = Image.open('../resource/bleed_roc.png')
