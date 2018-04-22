@@ -14,8 +14,8 @@ def calc_numerical_result(dataset_file_path):
 
 
 def get_sample_info(dataset_file_path):
-    num_of_sample = 2930
-    num_of_feature = 422
-    num_of_ischemic = 45
-    num_of_bleed = 156
+    num_of_sample = str(2930) + ' samples'
+    num_of_feature = str(422) + ' features'
+    num_of_ischemic = str(45) + ' cases'
+    num_of_bleed = str(156) + ' cases'
     return num_of_sample, num_of_feature, num_of_ischemic, num_of_bleed
