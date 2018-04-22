@@ -14,7 +14,8 @@ def calc_numerical_result(dataset_file_path):
 
 
 def get_sample_info(dataset_file_path):
-    train_num = 100
-    test_num = 100
-    time = "100"
-    return train_num, test_num, time
+    num_of_sample = 2930
+    num_of_feature = 422
+    num_of_ischemic = 45
+    num_of_bleed = 156
+    return num_of_sample, num_of_feature, num_of_ischemic, num_of_bleed
