@@ -10,6 +10,13 @@
 
 ![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/idea.jpg)
 
+后期导师提出了一个新的思路，模型架构大致如下：
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/new_model.png)
+
+
+~~但是实际可能不按照模型来实现，所以模型仅为参考~~
+
+~~毕业设计要赶DDL，我能怎么办，我也很绝望啊~~
 
 
 整体思路为：
