@@ -11,6 +11,8 @@
 ![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/idea.jpg)
 
 后期导师提出了一个新的思路，模型架构大致如下：
+
+
 ![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/new_model.png)
 
 
