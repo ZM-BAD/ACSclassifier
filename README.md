@@ -8,7 +8,7 @@
 模型架构大致如下：
 
 
-![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/resource/idea.jpg)
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/idea.jpg)
 
 
 
@@ -23,7 +23,7 @@
 
 除了算法模型以外，该研究最终还要以良好的UI呈现给用户。**最后的软件界面示意图如下**：
 
-![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/resource/panel.png)
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/panel.png)
 
 
 
@@ -31,6 +31,6 @@
 
 - [x] 从dataset中读取数据
 - [x] 建立SDAE，进行特征抽取
-- [ ] 利用Attention机制进行注意力加权分类
+- [ ] 利用Softmax对抽取的特征进行分类
 - [x] 为整个系统构建GUI界面
 - [ ] 模块间联调
