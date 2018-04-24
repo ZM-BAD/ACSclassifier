@@ -7,6 +7,8 @@ from PIL import Image, ImageTk
 
 from model.control import *
 
+import _thread
+
 # Fonts used
 ui_font = 'Microsoft YaHei UI'
 small = (ui_font, 13)
@@ -21,8 +23,8 @@ IMAGE_HEIGHT = 350
 # Locations of some widgets
 FILEPATH_x = 255
 FILEPATH_y = 30
-SAMPLE_x = 165  # '样本数量'_x
-SAMPLE_y = 110  # '样本数量'_y
+S_x = 165  # '样本数量'_x
+S_y = 110  # '样本数量'_y
 HBA = 30  # HEIGHT_BETWEEN_'样本数量'_AND_'特征数量'
 BI_x = 100  # BLEED_ROC_IMAGE_x
 II_x = 550  # ISCHEMIC_ROC_IMAGE_x
@@ -75,17 +77,16 @@ class UIPanel(object):
         Label(self.root, text='模型设置', font=small).place(x=685, y=70, anchor=W)
 
         # Get the dataset info
-        Label(self.root, text='样本数量:', font=small).place(x=SAMPLE_x, y=SAMPLE_y, anchor=W)
-        Label(self.root, text='特征数量:', font=small).place(x=SAMPLE_x, y=SAMPLE_y + HBA, anchor=W)
-        Label(self.root, text='出血事件:', font=small).place(x=SAMPLE_x, y=SAMPLE_y + 2 * HBA, anchor=W)
-        Label(self.root, text='缺血事件:', font=small).place(x=SAMPLE_x, y=SAMPLE_y + 3 * HBA, anchor=W)
+        Label(self.root, text='样本数量:', font=small).place(x=S_x, y=S_y, anchor=W)
+        Label(self.root, text='特征数量:', font=small).place(x=S_x, y=S_y + HBA, anchor=W)
+        Label(self.root, text='出血事件:', font=small).place(x=S_x, y=S_y + 2 * HBA, anchor=W)
+        Label(self.root, text='缺血事件:', font=small).place(x=S_x, y=S_y + 3 * HBA, anchor=W)
 
         # Set the epoch and nodes of each hidden layer(if you choose SDAE)
         # If you choose LR model, the param of SDAE hiddens will be ineffective
-        Label(self.root, text='选择模型并设置参数，点击"训练"', font=small).place(x=SAMPLE_x + 395, y=SAMPLE_y, anchor=W)
-        Label(self.root, text='各隐藏层节点数(以空格分隔): ', font=small).place(x=SAMPLE_x + 395, y=SAMPLE_y + 2 * HBA, anchor=W)
-        Label(self.root, text='Epochs(for both 2 models)=', font=small).place(x=SAMPLE_x + 395, y=SAMPLE_y + 3 * HBA,
-                                                                              anchor=W)
+        Label(self.root, text='选择模型并设置参数，点击"训练"', font=small).place(x=S_x + 395, y=S_y, anchor=W)
+        Label(self.root, text='各隐藏层节点数(以空格分隔): ', font=small).place(x=S_x + 395, y=S_y + 2 * HBA, anchor=W)
+        Label(self.root, text='Epochs(for both 2 models)=', font=small).place(x=S_x + 395, y=S_y + 3 * HBA, anchor=W)
 
         # Photo titles
         Label(self.root, text="出血事件", font=big).place(x=BI_x + 125, y=RI_y - 20, anchor=W)
@@ -105,9 +106,9 @@ class UIPanel(object):
 
     def _model_select_buttons(self):
         Radiobutton(self.root, text='Benchmark: LR', variable=self._model_selected, value=1, font=small).place(
-            x=555, y=SAMPLE_y + 30, anchor=W)
+            x=555, y=S_y + 30, anchor=W)
         Radiobutton(self.root, text='研究模型: SDAE', variable=self._model_selected, value=2, font=small).place(
-            x=735, y=SAMPLE_y + 30, anchor=W)
+            x=735, y=S_y + 30, anchor=W)
 
     def _place_buttons(self):
         Button(self.root, text='选择', font=(ui_font, 10), width=5, command=self._confirm_select_click).place(
@@ -118,9 +119,9 @@ class UIPanel(object):
 
     def _place_text(self):
         self.epochs = Text(height=1, width=12, font=text)
-        self.epochs.place(x=SAMPLE_x + 635, y=SAMPLE_y + 3 * HBA, anchor=W)
+        self.epochs.place(x=S_x + 635, y=S_y + 3 * HBA, anchor=W)
         self.hiddens = Text(height=1, width=12, font=text)
-        self.hiddens.place(x=SAMPLE_x + 635, y=SAMPLE_y + 2 * HBA, anchor=W)
+        self.hiddens.place(x=S_x + 635, y=S_y + 2 * HBA, anchor=W)
 
         self.bleed_auc = Text(height=1, width=10, font=text)
         self.bleed_auc.place(x=BA_x + WBLAT, y=BA_y, anchor=W)
@@ -164,11 +165,12 @@ class UIPanel(object):
 
     def _confirm_select_click(self):
         self.file_path.set(askopenfilename())
-        samples, features, ischemics, bleeds = get_sample_info(self.file_path)
-        Label(self.root, text=samples, font=small, foreground='SlateBlue').place(x=SAMPLE_x + 115, y=SAMPLE_y, anchor=W)
-        Label(self.root, text=features, font=small, foreground='SlateBlue').place(x=SAMPLE_x + 115, y=SAMPLE_y + HBA, anchor=W)
-        Label(self.root, text=bleeds, font=small, foreground='SlateBlue').place(x=SAMPLE_x + 115, y=SAMPLE_y + 2 * HBA, anchor=W)
-        Label(self.root, text=ischemics, font=small, foreground='SlateBlue').place(x=SAMPLE_x + 115, y=SAMPLE_y + 3 * HBA, anchor=W)
+        sample, feature, ischemic, bleed = get_sample_info(self.file_path.get())
+        Label(self.root, text=sample, font=small, foreground='SlateBlue').place(x=S_x + 115, y=S_y, anchor=W)
+        Label(self.root, text=feature, font=small, foreground='SlateBlue').place(x=S_x + 115, y=S_y + HBA, anchor=W)
+        Label(self.root, text=bleed, font=small, foreground='SlateBlue').place(x=S_x + 115, y=S_y + 2 * HBA, anchor=W)
+        Label(self.root, text=ischemic, font=small, foreground='SlateBlue').place(x=S_x + 115, y=S_y + 3 * HBA,
+                                                                                  anchor=W)
 
     def _confirm_train_click(self):
         # Delete origin values in text-box
@@ -179,6 +181,17 @@ class UIPanel(object):
         self.ischemic_precision.delete(1.0, END)
         self.ischemic_recall.delete(1.0, END)
 
+        # Choose model and train
+        dataset = self.file_path.get()
+        epochs = self.epochs.get(1.0, END)
+        hiddens = str(self.hiddens.get(1.0, END)).strip('\n')
+        sdae = hiddens.split(' ')
+        model = self._model_selected.get()
+        if model == 1:
+            _thread.start_new_thread(self._call_lr_model())
+        elif model == 2:
+            _thread.start_new_thread(self._call_sdae_model())
+
         # Get new values and write it
         bleed_f1_score, bleed_precision, bleed_recall = calc_numerical_result(self.file_path)
         ischemic_f1_score, ischemic_precision, ischemic_recall = calc_numerical_result(self.file_path)
@@ -188,6 +201,12 @@ class UIPanel(object):
         self.ischemic_f1_score.insert(END, ischemic_f1_score)
         self.ischemic_precision.insert(END, ischemic_precision)
         self.ischemic_recall.insert(END, ischemic_recall)
+
+    def _call_lr_model(self, ):
+        pass
+
+    def _call_sdae_model(self):
+        pass
 
     def show(self):
         self.root.mainloop()

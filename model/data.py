@@ -6,15 +6,23 @@ import csv
 import numpy as np
 
 
-def read_from_csv():
+def read_from_csv(datafile_path):
     """
     :return: samples and labels in ndarray
     """
-    # There're 2930 samples and 442 features in dataset.csv
-    reader = csv.reader(open('../resource/dataset.csv', encoding='gbk'))
-    all_data = np.zeros([2930, 444])
-    bleed_label = np.zeros([2930, 2])  # bleed happen=(1, 0), not happen=(0, 1)
-    ischemic_label = np.zeros([2930, 2])  # ischemic happen=(1, 0), not happen=(0, 1)
+    # I know there're 2930 samples and 442 features in dataset.csv
+    # But we still have to write some code to get the number
+    a = open(datafile_path, 'r')
+    num_of_sample = len(a.readlines()) - 1
+    reader = csv.reader(open(datafile_path, encoding='gbk'))
+    columns = 0
+    for row in reader:
+        columns = len(row)
+        break
+
+    all_data = np.zeros([num_of_sample, columns])
+    bleed_label = np.zeros([num_of_sample, 2])  # bleed happen=(1, 0), not happen=(0, 1)
+    ischemic_label = np.zeros([num_of_sample, 2])  # ischemic happen=(1, 0), not happen=(0, 1)
 
     # First line in the file is feature name, ignore it.
     line = -1
@@ -44,6 +52,7 @@ def read_from_csv():
 
 if __name__ == "__main__":
     samples, bleed_labels, ischemic_labels = read_from_csv()
-    print(samples)
-    print(bleed_labels)
-    print(ischemic_labels)
+
+    # print(samples)
+    # print(bleed_labels)
+    # print(ischemic_labels)
