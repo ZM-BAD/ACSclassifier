@@ -12,7 +12,7 @@ def read_from_csv(datafile_path):
     """
     # I know there're 2930 samples and 442 features in dataset.csv
     # But we still have to write some code to get the number
-    a = open(datafile_path, 'r')
+    a = open(datafile_path, 'r', encoding="gbk")
     num_of_sample = len(a.readlines()) - 1
     reader = csv.reader(open(datafile_path, encoding='gbk'))
     columns = 0
