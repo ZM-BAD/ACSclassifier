@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1462</width>
-    <height>898</height>
+    <width>1483</width>
+    <height>922</height>
    </rect>
   </property>
   <property name="font">
@@ -22,8 +22,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>40</y>
+      <x>120</x>
+      <y>30</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -41,8 +41,8 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>1120</x>
-      <y>100</y>
+      <x>1130</x>
+      <y>30</y>
       <width>131</width>
       <height>31</height>
      </rect>
@@ -60,8 +60,8 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>1150</x>
-      <y>780</y>
+      <x>1160</x>
+      <y>820</y>
       <width>91</width>
       <height>41</height>
      </rect>
@@ -79,8 +79,8 @@
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>1090</x>
-      <y>40</y>
+      <x>840</x>
+      <y>30</y>
       <width>91</width>
       <height>41</height>
      </rect>
@@ -98,18 +98,18 @@
    <widget class="QGraphicsView" name="graphicsView">
     <property name="geometry">
      <rect>
-      <x>980</x>
-      <y>140</y>
+      <x>990</x>
+      <y>70</y>
       <width>431</width>
-      <height>431</height>
+      <height>501</height>
      </rect>
     </property>
    </widget>
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>980</x>
-      <y>640</y>
+      <x>990</x>
+      <y>660</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -127,8 +127,8 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>980</x>
-      <y>690</y>
+      <x>990</x>
+      <y>720</y>
       <width>301</width>
       <height>31</height>
      </rect>
@@ -146,9 +146,9 @@
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>1130</x>
-      <y>640</y>
-      <width>281</width>
+      <x>1110</x>
+      <y>660</y>
+      <width>311</width>
       <height>31</height>
      </rect>
     </property>
@@ -156,8 +156,8 @@
    <widget class="QLineEdit" name="lineEdit_2">
     <property name="geometry">
      <rect>
-      <x>980</x>
-      <y>730</y>
+      <x>990</x>
+      <y>760</y>
       <width>431</width>
       <height>31</height>
      </rect>
@@ -166,7 +166,7 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>410</x>
       <y>90</y>
       <width>151</width>
       <height>31</height>
@@ -186,7 +186,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>470</y>
+      <y>410</y>
       <width>931</width>
       <height>20</height>
      </rect>
@@ -195,23 +195,10 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="Line" name="line_2">
-    <property name="geometry">
-     <rect>
-      <x>920</x>
-      <y>0</y>
-      <width>20</width>
-      <height>861</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
    <widget class="QRadioButton" name="radioButton">
     <property name="geometry">
      <rect>
-      <x>1010</x>
+      <x>1020</x>
       <y>590</y>
       <width>171</width>
       <height>21</height>
@@ -229,7 +216,7 @@
    <widget class="QRadioButton" name="radioButton_2">
     <property name="geometry">
      <rect>
-      <x>1190</x>
+      <x>1200</x>
       <y>590</y>
       <width>181</width>
       <height>21</height>
@@ -248,7 +235,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>510</y>
+      <y>430</y>
       <width>191</width>
       <height>31</height>
      </rect>
@@ -266,7 +253,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>680</y>
+      <y>650</y>
       <width>191</width>
       <height>31</height>
      </rect>
@@ -280,13 +267,89 @@
      <string>研究模型(SDAE):</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>480</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Agency FB</family>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>出血事件</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>480</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Agency FB</family>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>缺血事件</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>700</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Agency FB</family>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>出血事件</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>700</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Agency FB</family>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>缺血事件</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1462</width>
+     <width>1483</width>
      <height>26</height>
     </rect>
    </property>
