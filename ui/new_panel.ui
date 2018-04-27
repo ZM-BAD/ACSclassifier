@@ -411,7 +411,7 @@
      </font>
     </property>
     <property name="text">
-     <string>C:/Users/ZM-BAD</string>
+     <string>C:/Users/ZM-BAD/Projects/ACSclassifier</string>
     </property>
    </widget>
    <widget class="QPushButton" name="confirm_button">

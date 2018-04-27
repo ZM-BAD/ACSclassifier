@@ -3,6 +3,7 @@ __author__ = 'ZM-BAD'
 
 import sys
 import os
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from ui.new_panel import Ui_MainWindow
@@ -16,6 +17,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
         # Show the main window
         self.setWindowTitle("急性冠脉综合征主要不良心血管事件预测系统")
         self.setWindowIcon(QIcon("../res/PyQt5.ico"))
+        self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
         self.center()
 
         # Place some labels
