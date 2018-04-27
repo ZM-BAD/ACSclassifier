@@ -6,7 +6,7 @@ import os
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from ui.new_panel import Ui_MainWindow
+from ui.panel import Ui_MainWindow
 from model.control import *
 
 
@@ -19,6 +19,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(QIcon("../res/PyQt5.ico"))
         self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
         self.center()
+        self.dataset_is_selected = False
 
         # Place some labels
         self.model_sketch.setPixmap(QPixmap("../res/model_choose_label.png"))
@@ -58,12 +59,18 @@ class MainForm(QMainWindow, Ui_MainWindow):
         if os.path.abspath(path) != os.path.abspath('../res/dataset.csv'):
             self.invalid_file()
         else:
+            self.dataset_is_selected = True
             draw_sample_info_statistics(path)
             self.sample_statistics.setPixmap(QPixmap("../res/venn.png"))
             os.remove("../res/venn.png")
 
     # Train the model
     def train(self):
+        # Check if the dataset is selected
+        if not self.dataset_is_selected:
+            self.dataset_is_not_selected()
+            return
+
         # Check if the model is selected
         if not self.radioButton_lr.isChecked() and not self.radioButton_sdae.isChecked():
             self.no_model_chosen()
@@ -71,7 +78,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
         # Check if the epoch is valid
         epoch = self.epochs.text()
-        if len(epoch) == 0 or int(epoch) == 0:
+        if len(epoch) == 0 or not epoch.isdigit():
             self.invalid_epoch()
             return
 
@@ -96,6 +103,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     return
                 else:
                     sdae_experiment(self.file_dir.text(), epoch, hiddens)
+
+    def dataset_is_not_selected(self):
+        reply = QMessageBox.warning(self, "错误", "未选择数据集", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        print(reply)
 
     def invalid_file(self):
         reply = QMessageBox.warning(self, "错误", "请选择正确的数据集", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
