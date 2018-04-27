@@ -2,7 +2,8 @@
 __author__ = 'ZM-BAD'
 
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QFileDialog
+import os
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from ui.new_panel import Ui_MainWindow
 from model.control import *
@@ -27,10 +28,12 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.label_sdae.setStyleSheet("QLabel { background-color : CornflowerBlue }")
 
         self.choose_button.clicked.connect(self.choose_file)
+        self.confirm_button.clicked.connect(self.confirm)
         self.train_button.clicked.connect(self.train)
         self.radioButton_lr.clicked.connect(self.show_lr_sketch)
         self.radioButton_sdae.clicked.connect(self.show_sdae_sketch)
 
+    # Show the LR/SDAE model sketch
     def show_lr_sketch(self):
         self.model_sketch.setPixmap(QPixmap("../res/lr_sketch.png"))
 
@@ -47,11 +50,66 @@ class MainForm(QMainWindow, Ui_MainWindow):
         file = QFileDialog.getOpenFileName(self, "打开", self.file_dir.text(), "All Files (*)")
         file_path = file[0]
         self.file_dir.setText(file_path)
-        draw_sample_info_statistics(file_path)
-        self.sample_statistics.setPixmap(QPixmap("../res/venn.png"))
 
+    def confirm(self):
+        path = self.file_dir.text()
+        if os.path.abspath(path) != os.path.abspath('../res/dataset.csv'):
+            self.invalid_file()
+        else:
+            draw_sample_info_statistics(path)
+            self.sample_statistics.setPixmap(QPixmap("../res/venn.png"))
+            os.remove("../res/venn.png")
+
+    # Train the model
     def train(self):
-        pass
+        # Check if the model is selected
+        if not self.radioButton_lr.isChecked() and not self.radioButton_sdae.isChecked():
+            self.no_model_chosen()
+            return
+
+        # Check if the epoch is valid
+        epoch = self.epochs.text()
+        if len(epoch) == 0 or int(epoch) == 0:
+            self.invalid_epoch()
+            return
+
+        # Train LR model
+        if self.radioButton_lr.isChecked():
+            lr_experiment(self.file_dir.text(), epoch)
+
+        # Train SDAE model
+        if self.radioButton_sdae.isChecked():
+            if len(self.hiddens.text()) == 0:
+                self.invalid_sdae()
+                return
+            else:
+                hiddens = self.hiddens.text().split(' ')
+                valid = True
+                for i in hiddens:
+                    if not i.isdigit():
+                        valid = False
+                        break
+                if not valid:
+                    self.invalid_sdae()
+                    return
+                else:
+                    sdae_experiment(self.file_dir.text(), epoch, hiddens)
+
+    def invalid_file(self):
+        reply = QMessageBox.warning(self, "错误", "请选择正确的数据集", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        print(reply)
+
+    def no_model_chosen(self):
+        reply = QMessageBox.warning(self, "错误", "没有选择模型", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        print(reply)
+
+    def invalid_epoch(self):
+        reply = QMessageBox.warning(self, "错误", "无效的epoch参数\n请重新输入", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        print(reply)
+
+    def invalid_sdae(self):
+        reply = QMessageBox.warning(self, "错误", "无效的隐藏层输入\n请重新输入", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        print(reply)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 __author__ = 'ZM-BAD'
 
 import matplotlib.pyplot as plt
-from matplotlib_venn import venn2, venn2_circles
+from matplotlib_venn import venn2
 from model.data import read_from_csv
 
 """
@@ -61,5 +61,9 @@ def get_sample_info(dataset_path):
     return num_of_sample, num_of_feature, num_of_ischemic, num_of_bleed
 
 
-if __name__ == "__main__":
-    draw_sample_info_statistics("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv")
+def lr_experiment(dataset_path, epoch):
+    pass
+
+
+def sdae_experiment(dataset_path, epoch, hiddens):
+    pass

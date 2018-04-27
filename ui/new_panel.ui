@@ -22,7 +22,7 @@
    <widget class="QLabel" name="label_open_file">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>40</x>
       <y>20</y>
       <width>101</width>
       <height>31</height>
@@ -81,18 +81,17 @@
      <rect>
       <x>1010</x>
       <y>650</y>
-      <width>121</width>
+      <width>171</width>
       <height>31</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
       <pointsize>15</pointsize>
      </font>
     </property>
     <property name="text">
-     <string>训练轮数：</string>
+     <string>训练轮数(epochs)：</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_hiddens">
@@ -117,9 +116,9 @@
    <widget class="QLineEdit" name="epochs">
     <property name="geometry">
      <rect>
-      <x>1130</x>
+      <x>1190</x>
       <y>650</y>
-      <width>311</width>
+      <width>251</width>
       <height>31</height>
      </rect>
     </property>
@@ -266,7 +265,7 @@
    <widget class="QLabel" name="label_ischemic_event">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>570</x>
       <y>520</y>
       <width>81</width>
       <height>31</height>
@@ -285,7 +284,7 @@
    <widget class="QPushButton" name="choose_button">
     <property name="geometry">
      <rect>
-      <x>850</x>
+      <x>800</x>
       <y>20</y>
       <width>81</width>
       <height>31</height>
@@ -306,7 +305,7 @@
      <rect>
       <x>0</x>
       <y>460</y>
-      <width>951</width>
+      <width>971</width>
       <height>20</height>
      </rect>
     </property>
@@ -317,7 +316,7 @@
    <widget class="QLabel" name="label_loss">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>700</x>
       <y>60</y>
       <width>121</width>
       <height>31</height>
@@ -361,7 +360,7 @@
    <widget class="QLabel" name="loss_curve">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>570</x>
       <y>90</y>
       <width>400</width>
       <height>360</height>
@@ -374,7 +373,7 @@
    <widget class="QLabel" name="label_ischemic_event_pic">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>570</x>
       <y>550</y>
       <width>400</width>
       <height>310</height>
@@ -400,9 +399,9 @@
    <widget class="QLineEdit" name="file_dir">
     <property name="geometry">
      <rect>
-      <x>172</x>
+      <x>150</x>
       <y>20</y>
-      <width>661</width>
+      <width>641</width>
       <height>31</height>
      </rect>
     </property>
@@ -413,6 +412,25 @@
     </property>
     <property name="text">
      <string>C:/Users/ZM-BAD</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="confirm_button">
+    <property name="geometry">
+     <rect>
+      <x>890</x>
+      <y>20</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Agency FB</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>确定</string>
     </property>
    </widget>
   </widget>
