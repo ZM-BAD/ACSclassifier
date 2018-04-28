@@ -3,11 +3,35 @@ __author__ = 'ZM-BAD'
 
 import sys
 import os
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from ui.panel import Ui_MainWindow
 from model.control import *
+
+
+# TODO: mul-thread to update UI, loss curve
+# TODO: calculate f1-score, auc, recall, precision
+# TODO: draw bleeding and ischemic graph
+
+class Thread(QThread):
+    def __init__(self, dataset_path, model, epochs, hiddens):
+        """
+        :param model: 1 lr, 2 sdae
+        :param epochs: epochs
+        :param hiddens:
+        """
+        self.dataset_path = dataset_path
+        self.model = model
+        self.epochs = epochs
+        self.hiddens = hiddens
+        super(Thread, self).__init__()
+
+    def run(self):
+        if self.model == 1:
+            lr_experiment(self.dataset_path, self.epochs)
+        else:
+            sdae_experiment(self.dataset_path, self.epochs, self.hiddens)
 
 
 class MainForm(QMainWindow, Ui_MainWindow):
@@ -84,9 +108,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
         # Train LR model
         if self.radioButton_lr.isChecked():
-            lr_experiment(self.file_dir.text(), epoch)
+            thread = Thread(self.file_dir.text(), 1, epoch, hiddens=None)
+            thread.start()
 
-        # Train SDAE model
+            # Train SDAE model
         if self.radioButton_sdae.isChecked():
             if len(self.hiddens.text()) == 0:
                 self.invalid_sdae()
@@ -102,7 +127,8 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     self.invalid_sdae()
                     return
                 else:
-                    sdae_experiment(self.file_dir.text(), epoch, hiddens)
+                    thread = Thread(self.file_dir.text(), 2, epoch, hiddens)
+                    thread.start()
 
     def dataset_is_not_selected(self):
         reply = QMessageBox.warning(self, "错误", "未选择数据集", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
