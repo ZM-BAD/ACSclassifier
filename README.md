@@ -30,7 +30,7 @@
 ## 技术路线
 编程语言：Python 3.6.5(64-bit)  
 机器学习框架：TensorFlow 1.7  
-GUI Lib: PyQt 5.10.1
+GUI Lib: ~~Tkinter~~ PyQt 5.10.1
 
 ## TODO：
 
