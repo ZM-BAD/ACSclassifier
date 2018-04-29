@@ -53,8 +53,7 @@ def lr_experiment(dataset_path, epoch):
     # time.sleep(2)
     print(dataset_path)
     print(epoch)
-    # for i in range(100000):
-    #     print("+1s")
+    time.sleep(10)
 
 
 def sdae_experiment(dataset_path, epoch, hiddens):
@@ -64,10 +63,10 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     :param hiddens: <list>
     :return:
     """
-    # time.sleep(2)
     print(dataset_path)
     print(epoch)
     print(hiddens)
+    time.sleep(5)
 
 
 if __name__ == "__main__":

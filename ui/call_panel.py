@@ -15,6 +15,8 @@ from model.control import *
 # TODO: draw bleeding and ischemic graph
 
 class ModelThread(QThread):
+    finished = pyqtSignal()
+
     def __init__(self, dataset_path, model, epochs, hiddens):
         """
         :param model: 1 lr, 2 sdae
@@ -32,6 +34,8 @@ class ModelThread(QThread):
             lr_experiment(self.dataset_path, self.epochs)
         else:
             sdae_experiment(self.dataset_path, self.epochs, self.hiddens)
+
+        self.finished.emit()
 
 
 class MainForm(QMainWindow, Ui_MainWindow):
@@ -63,6 +67,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.lr_thread = ModelThread(self.file_dir.text(), 1, self.epochs.text(), hiddens=None)
         self.sdae_thread = ModelThread(self.file_dir.text(), 2, self.epochs.text(), hiddens=None)
 
+        # Once the training thread is finished, the train_button should be accessible
+        self.lr_thread.finished.connect(self.recover)
+        self.sdae_thread.finished.connect(self.recover)
+
     # Show the LR/SDAE model sketch
     def show_lr_sketch(self):
         self.model_sketch.setPixmap(QPixmap("../res/lr_sketch.png"))
@@ -84,7 +92,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
     def confirm(self):
         path = self.file_dir.text()
         if os.path.abspath(path) != os.path.abspath('../res/dataset.csv'):
-            self.invalid_file()
+            self.invalid_dataset()
         else:
             self.dataset_is_selected = True
             draw_sample_info_statistics(path)
@@ -111,15 +119,21 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
         # Train LR model
         if self.radioButton_lr.isChecked():
+            # First, set the button inaccessible
             self.train_button.setEnabled(False)
+            # Then, set the parameters for the model
             self.lr_thread.dataset_path = self.file_dir.text()
             self.lr_thread.epochs = epoch
+            # Start the thread
             self.lr_thread.start()
+            self.loss_curve.setPixmap(QPixmap("../res/loss_waiting.png"))
+            self.label_bleeding_event_pic.setPixmap(QPixmap("../res/result_waiting.png"))
+            self.label_ischemic_event_pic.setPixmap(QPixmap("../res/result_waiting.png"))
 
         # Train SDAE model
         if self.radioButton_sdae.isChecked():
             if len(self.hiddens.text()) == 0:
-                self.invalid_sdae()
+                self.invalid_sdae_hiddens()
                 return
             else:
                 hiddens = self.hiddens.text().split(' ')
@@ -129,7 +143,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
                         valid = False
                         break
                 if not valid:
-                    self.invalid_sdae()
+                    self.invalid_sdae_hiddens()
                     return
                 else:
                     self.train_button.setEnabled(False)
@@ -138,14 +152,16 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     self.sdae_thread.hiddens = hiddens
                     self.sdae_thread.start()
 
+    # Set the train_button accessible
     def recover(self):
         self.train_button.setEnabled(True)
 
+    # Some exceptions and solutions
     def dataset_is_not_selected(self):
         reply = QMessageBox.warning(self, "错误", "未选择数据集", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         print(reply)
 
-    def invalid_file(self):
+    def invalid_dataset(self):
         reply = QMessageBox.warning(self, "错误", "请选择正确的数据集", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         print(reply)
 
@@ -157,7 +173,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
         reply = QMessageBox.warning(self, "错误", "无效的epoch参数\n请重新输入", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         print(reply)
 
-    def invalid_sdae(self):
+    def invalid_sdae_hiddens(self):
         reply = QMessageBox.warning(self, "错误", "无效的隐藏层输入\n请重新输入", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         print(reply)
 
