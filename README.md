@@ -9,7 +9,7 @@
 
 模型架构大致如下：
 
-![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/new_model.png)
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/new_model.png)
 
 
 ~~但是实际可能不按照模型来实现，所以模型仅为参考~~  
@@ -25,7 +25,7 @@
 
 除了算法模型以外，该研究最终还要以良好的UI呈现给用户。经过迭代开发，**第一版软件界面示意图如下**：
 
-![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/panel.png)
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/panel.png)
 
 ## 技术路线
 编程语言：Python 3.6.5(64-bit)  
