@@ -29,7 +29,7 @@ def draw_sample_info_statistics(file_path):
     num_of_feature = len(sample[0])
     num_of_ischemic = num_of_ischemic
     num_of_bleed = num_of_bleed
-    plt.figure(figsize=(4, 3.6), dpi=100)
+    plt.figure(figsize=(4, 3.35), dpi=100)
     venn2(subsets=(num_of_bleed - both, num_of_ischemic - both, both), set_labels=('bleeding', 'ischemic'))
     string = 'A total of ' + str(num_of_sample) + ' samples with ' + str(num_of_feature) + ' features'
     plt.title(string)
@@ -70,4 +70,4 @@ def sdae_experiment(dataset_path, epoch, hiddens):
 
 
 if __name__ == "__main__":
-    lr_experiment(" ", " ")
+    draw_sample_info_statistics("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv")

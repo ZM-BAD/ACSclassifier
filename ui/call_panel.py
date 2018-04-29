@@ -44,17 +44,17 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         # Show the main window
         self.setWindowTitle("急性冠脉综合征主要不良心血管事件预测系统")
-        self.setWindowIcon(QIcon("../res/PyQt5.ico"))
+        self.setWindowIcon(QIcon("../res/pics/PyQt5.ico"))
         self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
         self.center()
         self.dataset_is_selected = False
 
         # Place some labels
-        self.model_sketch.setPixmap(QPixmap("../res/model_choose_label.png"))
-        self.sample_statistics.setPixmap(QPixmap("../res/label.png").scaled(400, 360))
-        self.loss_curve.setPixmap(QPixmap("../res/label.png").scaled(400, 360))
-        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/label.png"))
-        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/label.png"))
+        self.model_sketch.setPixmap(QPixmap("../res/pics/choose_model.png"))
+        self.sample_statistics.setPixmap(QPixmap("../res/pics/blank.png"))
+        self.loss_curve.setPixmap(QPixmap("../res/pics/blank.png"))
+        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank.png"))
+        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank.png"))
         self.label_lr.setStyleSheet("QLabel { background-color : HotPink }")
         self.label_sdae.setStyleSheet("QLabel { background-color : CornflowerBlue }")
 
@@ -73,10 +73,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
     # Show the LR/SDAE model sketch
     def show_lr_sketch(self):
-        self.model_sketch.setPixmap(QPixmap("../res/lr_sketch.png"))
+        self.model_sketch.setPixmap(QPixmap("../res/pics/lr_sketch.png"))
 
     def show_sdae_sketch(self):
-        self.model_sketch.setPixmap(QPixmap("../res/sdae_sketch.png"))
+        self.model_sketch.setPixmap(QPixmap("../res/pics/sdae_sketch.png"))
 
     # Set the main window in the center of screen
     def center(self):
@@ -126,9 +126,9 @@ class MainForm(QMainWindow, Ui_MainWindow):
             self.lr_thread.epochs = epoch
             # Start the thread
             self.lr_thread.start()
-            self.loss_curve.setPixmap(QPixmap("../res/loss_waiting.png"))
-            self.label_bleeding_event_pic.setPixmap(QPixmap("../res/result_waiting.png"))
-            self.label_ischemic_event_pic.setPixmap(QPixmap("../res/result_waiting.png"))
+            self.loss_curve.setPixmap(QPixmap("../res/pics/waiting.png"))
+            self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/waiting.png").scaled(400, 310))
+            self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/waiting.png").scaled(400, 310))
 
         # Train SDAE model
         if self.radioButton_sdae.isChecked():
