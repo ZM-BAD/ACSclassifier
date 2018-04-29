@@ -14,18 +14,18 @@ from model.control import *
 # TODO: calculate f1-score, auc, recall, precision
 # TODO: draw bleeding and ischemic graph
 
-class Thread(QThread):
+class ModelThread(QThread):
     def __init__(self, dataset_path, model, epochs, hiddens):
         """
         :param model: 1 lr, 2 sdae
         :param epochs: epochs
         :param hiddens:
         """
+        super(ModelThread, self).__init__()
         self.dataset_path = dataset_path
         self.model = model
         self.epochs = epochs
         self.hiddens = hiddens
-        super(Thread, self).__init__()
 
     def run(self):
         if self.model == 1:
@@ -108,10 +108,12 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
         # Train LR model
         if self.radioButton_lr.isChecked():
-            thread = Thread(self.file_dir.text(), 1, epoch, hiddens=None)
+            self.train_button.setEnabled(False)
+            thread = ModelThread(self.file_dir.text(), 1, epoch, hiddens=None)
+            print("I am here")
             thread.start()
 
-            # Train SDAE model
+        # Train SDAE model
         if self.radioButton_sdae.isChecked():
             if len(self.hiddens.text()) == 0:
                 self.invalid_sdae()
@@ -127,8 +129,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     self.invalid_sdae()
                     return
                 else:
-                    thread = Thread(self.file_dir.text(), 2, epoch, hiddens)
-                    thread.start()
+                    self.train_button.setEnabled(False)
+
+    def recover(self):
+        self.train_button.setEnabled(True)
 
     def dataset_is_not_selected(self):
         reply = QMessageBox.warning(self, "错误", "未选择数据集", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)

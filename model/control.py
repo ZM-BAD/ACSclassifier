@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ZM-BAD'
 
+import time
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
 from model.data import read_from_csv
@@ -43,27 +44,27 @@ def calc_numerical_result(dataset_file_path):
     return f1_score, precision, recall
 
 
-def get_sample_info(dataset_path):
-    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
-
-    num_of_bleed = 0
-    num_of_ischemic = 0
-    for i in range(len(sample)):
-        if bleed_label[i, 0] == 1:
-            num_of_bleed += 1
-        if ischemic_label[i, 0] == 1:
-            num_of_ischemic += 1
-
-    num_of_sample = str(len(sample)) + ' samples'
-    num_of_feature = str(len(sample[0])) + ' features'
-    num_of_ischemic = str(num_of_ischemic) + ' cases'
-    num_of_bleed = str(num_of_bleed) + ' cases'
-    return num_of_sample, num_of_feature, num_of_ischemic, num_of_bleed
-
-
 def lr_experiment(dataset_path, epoch):
-    pass
+    """
+    :param dataset_path: <string>
+    :param epoch: <string>
+    :return:
+    """
+    for i in range(10):
+        print("+1s")
 
 
 def sdae_experiment(dataset_path, epoch, hiddens):
-    pass
+    """
+    :param dataset_path: <string>
+    :param epoch: <string>
+    :param hiddens: <list>
+    :return:
+    """
+    time.sleep(10)
+    for i in range(10):
+        print("+1s")
+
+
+if __name__ == "__main__":
+    lr_experiment(" ", " ")

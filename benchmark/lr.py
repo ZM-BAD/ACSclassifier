@@ -4,7 +4,6 @@ __author__ = 'ZM-BAD'
 import tensorflow as tf
 from model.data import read_from_csv
 from sklearn.model_selection import train_test_split
-from model.evaluate import evaluate
 
 # Classification of bleeding events
 sample, bleed_label, _ = read_from_csv()
@@ -39,8 +38,3 @@ correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 print(accuracy.eval({x: x_test, y_: y_test}))
-
-#
-# f1_score, recall, precision, auc = evaluate(y_test, tf.nn.softmax(y_test))
-# print(f1_score, recall, precision)
-
