@@ -60,6 +60,9 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.radioButton_lr.clicked.connect(self.show_lr_sketch)
         self.radioButton_sdae.clicked.connect(self.show_sdae_sketch)
 
+        self.lr_thread = ModelThread(self.file_dir.text(), 1, self.epochs.text(), hiddens=None)
+        self.sdae_thread = ModelThread(self.file_dir.text(), 2, self.epochs.text(), hiddens=None)
+
     # Show the LR/SDAE model sketch
     def show_lr_sketch(self):
         self.model_sketch.setPixmap(QPixmap("../res/lr_sketch.png"))
@@ -109,9 +112,9 @@ class MainForm(QMainWindow, Ui_MainWindow):
         # Train LR model
         if self.radioButton_lr.isChecked():
             self.train_button.setEnabled(False)
-            thread = ModelThread(self.file_dir.text(), 1, epoch, hiddens=None)
-            print("I am here")
-            thread.start()
+            self.lr_thread.dataset_path = self.file_dir.text()
+            self.lr_thread.epochs = epoch
+            self.lr_thread.start()
 
         # Train SDAE model
         if self.radioButton_sdae.isChecked():
@@ -130,6 +133,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     return
                 else:
                     self.train_button.setEnabled(False)
+                    self.sdae_thread.dataset_path = self.file_dir.text()
+                    self.sdae_thread.epochs = epoch
+                    self.sdae_thread.hiddens = hiddens
+                    self.sdae_thread.start()
 
     def recover(self):
         self.train_button.setEnabled(True)

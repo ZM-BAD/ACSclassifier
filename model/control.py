@@ -50,8 +50,11 @@ def lr_experiment(dataset_path, epoch):
     :param epoch: <string>
     :return:
     """
-    for i in range(10):
-        print("+1s")
+    # time.sleep(2)
+    print(dataset_path)
+    print(epoch)
+    # for i in range(100000):
+    #     print("+1s")
 
 
 def sdae_experiment(dataset_path, epoch, hiddens):
@@ -61,9 +64,10 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     :param hiddens: <list>
     :return:
     """
-    time.sleep(10)
-    for i in range(10):
-        print("+1s")
+    # time.sleep(2)
+    print(dataset_path)
+    print(epoch)
+    print(hiddens)
 
 
 if __name__ == "__main__":
