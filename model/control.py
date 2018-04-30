@@ -11,6 +11,11 @@ UI界面与模型之间的交互操作都包含在本模块中
 """
 
 
+def draw_event_graph():
+    pass
+
+
+# Draw venn diagram
 def draw_sample_info_statistics(file_path):
     sample, bleed_label, ischemic_label = read_from_csv(file_path)
 
@@ -38,24 +43,27 @@ def draw_sample_info_statistics(file_path):
 
 # 将选择的文件的路径传到函数中，返回f1_score等结果
 def calc_numerical_result(dataset_file_path):
+    auc = "fuck auc"
     f1_score = "f1_score"
     precision = "precision"
     recall = "recall"
-    return f1_score, precision, recall
+    return auc, f1_score, precision, recall
 
 
+# Do LR train
 def lr_experiment(dataset_path, epoch):
     """
     :param dataset_path: <string>
     :param epoch: <string>
     :return:
     """
-    # time.sleep(2)
-    print(dataset_path)
-    print(epoch)
-    time.sleep(10)
+    time.sleep(5)
+    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
+
+    pass
 
 
+# Do SDAE train
 def sdae_experiment(dataset_path, epoch, hiddens):
     """
     :param dataset_path: <string>

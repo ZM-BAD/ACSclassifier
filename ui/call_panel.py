@@ -21,7 +21,7 @@ class ModelThread(QThread):
         """
         :param model: 1 lr, 2 sdae
         :param epochs: epochs
-        :param hiddens:
+        :param hiddens: may be used
         """
         super(ModelThread, self).__init__()
         self.dataset_path = dataset_path
@@ -68,8 +68,8 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.sdae_thread = ModelThread(self.file_dir.text(), 2, self.epochs.text(), hiddens=None)
 
         # Once the training thread is finished, the train_button should be accessible
-        self.lr_thread.finished.connect(self.recover)
-        self.sdae_thread.finished.connect(self.recover)
+        self.lr_thread.finished.connect(self.thread_finished)
+        self.sdae_thread.finished.connect(self.thread_finished)
 
     # Show the LR/SDAE model sketch
     def show_lr_sketch(self):
@@ -156,7 +156,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
 
     # Set the train_button accessible
-    def recover(self):
+    def thread_finished(self):
+        self.loss_curve.setPixmap(QPixmap("../res/pics/loss_curve.png").scaled(400, 335))
+        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/ischemic.png").scaled(400, 335))
+        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/bleeding.png").scaled(400, 335))
         self.train_button.setEnabled(True)
 
     # Some exceptions and solutions
