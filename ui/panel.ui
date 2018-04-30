@@ -19,37 +19,18 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label_open_file">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>20</y>
-      <width>101</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Agency FB</family>
-      <pointsize>15</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>选择数据集</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_model_sketch">
     <property name="geometry">
      <rect>
       <x>1170</x>
       <y>20</y>
-      <width>101</width>
-      <height>31</height>
+      <width>125</width>
+      <height>32</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Microsoft YaHei UI Light</family>
       <pointsize>15</pointsize>
      </font>
     </property>
@@ -62,13 +43,13 @@
      <rect>
       <x>1180</x>
       <y>810</y>
-      <width>81</width>
-      <height>31</height>
+      <width>93</width>
+      <height>39</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Microsoft YaHei UI Light</family>
       <pointsize>14</pointsize>
      </font>
     </property>
@@ -76,85 +57,18 @@
      <string>训练</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_epochs">
-    <property name="geometry">
-     <rect>
-      <x>1010</x>
-      <y>650</y>
-      <width>171</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>15</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>训练轮数(epochs)：</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_hiddens">
-    <property name="geometry">
-     <rect>
-      <x>1010</x>
-      <y>710</y>
-      <width>301</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Agency FB</family>
-      <pointsize>15</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>各隐藏层节点数(空格分隔)：</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="epochs">
-    <property name="geometry">
-     <rect>
-      <x>1190</x>
-      <y>650</y>
-      <width>251</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="hiddens">
-    <property name="geometry">
-     <rect>
-      <x>1010</x>
-      <y>750</y>
-      <width>431</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_sample_info">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>160</x>
       <y>60</y>
-      <width>121</width>
-      <height>31</height>
+      <width>150</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Microsoft YaHei UI Light</family>
       <pointsize>15</pointsize>
      </font>
     </property>
@@ -162,99 +76,18 @@
      <string>样本统计信息</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton_lr">
-    <property name="geometry">
-     <rect>
-      <x>1040</x>
-      <y>580</y>
-      <width>171</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Benchmark(LR)</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_sdae">
-    <property name="geometry">
-     <rect>
-      <x>1220</x>
-      <y>580</y>
-      <width>181</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>研究模型(SDAE)</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_lr">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>450</y>
-      <width>161</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>15</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-      <underline>true</underline>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
-    </property>
-    <property name="text">
-     <string> Benchmark(LR) </string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_sdae">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>450</y>
-      <width>171</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>15</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-      <underline>true</underline>
-     </font>
-    </property>
-    <property name="text">
-     <string> 研究模型(SDAE) </string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_bleeding_event">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>190</x>
       <y>490</y>
-      <width>81</width>
-      <height>31</height>
+      <width>100</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Microsoft YaHei UI Light</family>
       <pointsize>15</pointsize>
      </font>
     </property>
@@ -265,39 +98,20 @@
    <widget class="QLabel" name="label_ischemic_event">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>720</x>
       <y>490</y>
-      <width>81</width>
-      <height>31</height>
+      <width>100</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Microsoft YaHei UI Light</family>
       <pointsize>15</pointsize>
      </font>
     </property>
     <property name="text">
      <string>缺血事件</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="choose_button">
-    <property name="geometry">
-     <rect>
-      <x>800</x>
-      <y>20</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Agency FB</family>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>选择</string>
     </property>
    </widget>
    <widget class="Line" name="line_2">
@@ -318,12 +132,13 @@
      <rect>
       <x>700</x>
       <y>60</y>
-      <width>121</width>
-      <height>31</height>
+      <width>147</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>Microsoft YaHei UI Light</family>
       <pointsize>15</pointsize>
      </font>
     </property>
@@ -386,7 +201,7 @@
    <widget class="QLabel" name="label_bleeding_event_pic">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>41</x>
       <y>520</y>
       <width>400</width>
       <height>335</height>
@@ -396,42 +211,208 @@
      <string>bleeding_event</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="file_dir">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>20</y>
-      <width>641</width>
-      <height>31</height>
+      <x>40</x>
+      <y>450</y>
+      <width>410</width>
+      <height>34</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>C:/Users/ZM-BAD/Projects/ACSclassifier</string>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_lr">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>15</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+         <underline>true</underline>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string> Benchmark(LR) </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_sdae">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>15</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+         <underline>true</underline>
+        </font>
+       </property>
+       <property name="text">
+        <string> 研究模型(SDAE) </string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <widget class="QPushButton" name="confirm_button">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>890</x>
+      <x>40</x>
       <y>20</y>
-      <width>81</width>
-      <height>31</height>
+      <width>931</width>
+      <height>41</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>Agency FB</family>
-      <pointsize>14</pointsize>
-     </font>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_open_file">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>选择数据集</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="file_dir">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>C:/Users/ZM-BAD/Projects/ACSclassifier</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="choose_button">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>选择</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="confirm_button">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>确定</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>1010</x>
+      <y>580</y>
+      <width>437</width>
+      <height>211</height>
+     </rect>
     </property>
-    <property name="text">
-     <string>确定</string>
-    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QRadioButton" name="radioButton_lr">
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei UI Light</family>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Benchmark(LR)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_sdae">
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei UI Light</family>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>研究模型(SDAE)</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_epochs">
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei UI Light</family>
+           <pointsize>15</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>训练轮数(epochs)：</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="epochs">
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei UI Light</family>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_hiddens">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>各隐藏层节点数(空格分隔)：</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="hiddens">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

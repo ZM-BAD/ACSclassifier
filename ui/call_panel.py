@@ -127,8 +127,8 @@ class MainForm(QMainWindow, Ui_MainWindow):
             # Start the thread
             self.lr_thread.start()
             self.loss_curve.setPixmap(QPixmap("../res/pics/waiting.png"))
-            self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/waiting.png").scaled(400, 310))
-            self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/waiting.png").scaled(400, 310))
+            self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
+            self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
 
         # Train SDAE model
         if self.radioButton_sdae.isChecked():
@@ -151,6 +151,9 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     self.sdae_thread.epochs = epoch
                     self.sdae_thread.hiddens = hiddens
                     self.sdae_thread.start()
+                    self.loss_curve.setPixmap(QPixmap("../res/pics/waiting.png"))
+                    self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
+                    self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
 
     # Set the train_button accessible
     def recover(self):
