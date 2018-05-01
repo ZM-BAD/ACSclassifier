@@ -27,7 +27,7 @@ class SDAE(object):
             self.scale = scale
             self.transfer = transfer_function
             self.optimizer = optimizer
-            self.sess = sess if sess is not None else tf.Session()
+            self.sess = sess or tf.Session()
 
             # 网络结构
             self.sdae = self._init_sdae(self.n_input, hiddens)
