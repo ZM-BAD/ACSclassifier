@@ -7,7 +7,7 @@ import tensorflow as tf
 from model.dae import DAE
 
 
-# SDAE是基于DAE实现的，其中DAE使用的噪声为加性高斯噪声
+# SDAE is based on DAE, which adds additive Gaussian noise
 class SDAE(object):
     def __init__(self, n_input, hiddens, transfer_function=tf.nn.softplus, scale=0.1, name='sdae', sess=None,
                  optimizer=tf.train.AdamOptimizer()):

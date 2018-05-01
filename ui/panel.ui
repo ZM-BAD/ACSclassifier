@@ -38,25 +38,6 @@
      <string>模型示意图</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="train_button">
-    <property name="geometry">
-     <rect>
-      <x>1180</x>
-      <y>810</y>
-      <width>93</width>
-      <height>39</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Microsoft YaHei UI Light</family>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>训练</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_sample_info">
     <property name="geometry">
      <rect>
@@ -215,53 +196,6 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>450</y>
-      <width>410</width>
-      <height>34</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label_lr">
-       <property name="font">
-        <font>
-         <family>Microsoft YaHei UI Light</family>
-         <pointsize>15</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-         <underline>true</underline>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string> Benchmark(LR) </string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_sdae">
-       <property name="font">
-        <font>
-         <family>Microsoft YaHei UI Light</family>
-         <pointsize>15</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-         <underline>true</underline>
-        </font>
-       </property>
-       <property name="text">
-        <string> 研究模型(SDAE) </string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
       <y>20</y>
       <width>931</width>
       <height>41</height>
@@ -322,93 +256,194 @@
      </item>
     </layout>
    </widget>
+   <widget class="QLabel" name="label_hiddens">
+    <property name="geometry">
+     <rect>
+      <x>1011</x>
+      <y>691</y>
+      <width>252</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>各隐藏层节点数(空格分隔)：</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="hiddens">
+    <property name="geometry">
+     <rect>
+      <x>1011</x>
+      <y>730</y>
+      <width>431</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+   </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>580</y>
-      <width>437</width>
-      <height>211</height>
+      <x>1070</x>
+      <y>600</y>
+      <width>316</width>
+      <height>31</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QRadioButton" name="radioButton_lr">
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei UI Light</family>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Benchmark(LR)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="radioButton_sdae">
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei UI Light</family>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>研究模型(SDAE)</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <item>
-        <widget class="QLabel" name="label_epochs">
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei UI Light</family>
-           <pointsize>15</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>训练轮数(epochs)：</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="epochs">
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei UI Light</family>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_hiddens">
-       <property name="font">
-        <font>
-         <family>Microsoft YaHei UI Light</family>
-         <pointsize>15</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>各隐藏层节点数(空格分隔)：</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="hiddens">
+      <widget class="QRadioButton" name="radioButton_lr">
        <property name="font">
         <font>
          <family>Microsoft YaHei UI Light</family>
          <pointsize>14</pointsize>
         </font>
+       </property>
+       <property name="text">
+        <string>Benchmark(LR)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButton_sdae">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>研究模型(SDAE)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLineEdit" name="epochs">
+    <property name="geometry">
+     <rect>
+      <x>1200</x>
+      <y>641</y>
+      <width>241</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_epochs">
+    <property name="geometry">
+     <rect>
+      <x>1012</x>
+      <y>641</y>
+      <width>177</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>训练轮数(epochs)：</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_lr">
+    <property name="geometry">
+     <rect>
+      <x>41</x>
+      <y>451</y>
+      <width>137</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+      <underline>false</underline>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>Benchmark(LR)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_sdae">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>451</y>
+      <width>143</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+      <underline>false</underline>
+     </font>
+    </property>
+    <property name="text">
+     <string>研究模型(SDAE)</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>1130</x>
+      <y>780</y>
+      <width>158</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="clear_button">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>清除</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="train_button">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>训练</string>
        </property>
       </widget>
      </item>

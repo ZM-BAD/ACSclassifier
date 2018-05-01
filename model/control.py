@@ -2,16 +2,36 @@
 __author__ = 'ZM-BAD'
 
 import time
+from sklearn.model_selection import train_test_split
+import tensorflow as tf
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
 from model.data import read_from_csv
-
-"""
-UI界面与模型之间的交互操作都包含在本模块中
-"""
+from model.sdae import SDAE
 
 
-def draw_event_graph():
+def evaluate(real, pred):
+    auc = 0
+    f1_score = 0
+    recall = 0
+    precision = 0
+
+    return auc, f1_score, recall, precision
+
+
+def draw_event_graph(result, event, model):
+    """
+    :param result: tuple (auc, f1-score, recall, precision)
+    :param event: bleeding event or ischemic event
+    :param model: lr HotPink, sdae CornflowerBlue
+    :return:
+    """
+
+    pass
+
+
+def draw_loss_curve(bleeding_loss, ischemic_loss, epochs):
+
     pass
 
 
@@ -41,15 +61,6 @@ def draw_sample_info_statistics(file_path):
     plt.savefig("../res/venn.png")
 
 
-# 将选择的文件的路径传到函数中，返回f1_score等结果
-def calc_numerical_result(dataset_file_path):
-    auc = "fuck auc"
-    f1_score = "f1_score"
-    precision = "precision"
-    recall = "recall"
-    return auc, f1_score, precision, recall
-
-
 # Do LR train
 def lr_experiment(dataset_path, epoch):
     """
@@ -57,10 +68,53 @@ def lr_experiment(dataset_path, epoch):
     :param epoch: <string>
     :return:
     """
-    time.sleep(5)
-    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
+    print("I am here")
+    #
+    # sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
+    # n_class = 2
+    # n_feature = len(sample[0])
+    # bleeding_loss = []
+    # ischemic_loss = []
+    #
+    # # Bleeding events
+    # sess = tf.InteractiveSession()
+    # x = tf.placeholder(tf.float32, [None, n_feature])
+    #
+    # W = tf.Variable(tf.zeros([n_feature, n_class]))
+    # b = tf.Variable(tf.zeros([n_class]))
+    #
+    # # y is prediction
+    # y = tf.matmul(x, W) + b
+    # pred = tf.nn.sigmoid(y)
+    #
+    # # y_ is real
+    # y_ = tf.placeholder(tf.float32, [None, n_class])
+    # cross_entropy = tf.reduce_mean(tf.losses.sigmoid_cross_entropy(y_, y))
+    # train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+    # tf.global_variables_initializer.run()
+    #
+    # x_train, x_test, y_train, y_test = train_test_split(sample, bleed_label, test_size=0.3, random_state=0)
+    #
+    # for i in range(epoch):
+    #     _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
+    #     if i % 50 == 0:
+    #         print(loss)
+    #         bleeding_loss.append(loss)
+    #
+    # correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y_, 1))
+    #
+    # accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    #
+    # print(accuracy.eval({x: x_test, y_: y_test}))
 
-    pass
+    # bleeding_result = evaluate(real=None, pred=None)
+    # draw_event_graph(bleeding_result, event="bleeding", model="lr")
+    #
+    # # Ischemic events
+    # ischemic_result = evaluate(real=None, pred=None)
+    # draw_event_graph(ischemic_result, event="ischemic", model="lr")
+    #
+    # draw_loss_curve(bleeding_loss, ischemic_loss, epoch)
 
 
 # Do SDAE train
@@ -71,11 +125,7 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     :param hiddens: <list>
     :return:
     """
-    print(dataset_path)
-    print(epoch)
-    print(hiddens)
-    time.sleep(5)
+    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
+    n_input = len(sample[0])
+    sdae = SDAE(n_input, hiddens)
 
-
-if __name__ == "__main__":
-    draw_sample_info_statistics("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv")

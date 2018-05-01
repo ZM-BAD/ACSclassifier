@@ -10,9 +10,10 @@ from ui.panel import Ui_MainWindow
 from model.control import *
 
 
-# TODO: mul-thread to update UI, loss curve
-# TODO: calculate f1-score, auc, recall, precision
-# TODO: draw bleeding and ischemic graph
+# TODO: Calculate f1-score, auc, recall, precision
+# TODO: Draw bleeding and ischemic graph
+# TODO: Add models to the system
+# TODO: Think how to organize the output data
 
 class ModelThread(QThread):
     finished = pyqtSignal()
@@ -30,7 +31,7 @@ class ModelThread(QThread):
         self.hiddens = hiddens
 
     def run(self):
-        if self.model == 1:
+        if self.model == "lr":
             lr_experiment(self.dataset_path, self.epochs)
         else:
             sdae_experiment(self.dataset_path, self.epochs, self.hiddens)
@@ -61,11 +62,12 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.choose_button.clicked.connect(self.choose_file)
         self.confirm_button.clicked.connect(self.confirm)
         self.train_button.clicked.connect(self.train)
+        self.clear_button.clicked.connect(self.clear)
         self.radioButton_lr.clicked.connect(self.show_lr_sketch)
         self.radioButton_sdae.clicked.connect(self.show_sdae_sketch)
 
-        self.lr_thread = ModelThread(self.file_dir.text(), 1, self.epochs.text(), hiddens=None)
-        self.sdae_thread = ModelThread(self.file_dir.text(), 2, self.epochs.text(), hiddens=None)
+        self.lr_thread = ModelThread(self.file_dir.text(), "lr", self.epochs.text(), hiddens=None)
+        self.sdae_thread = ModelThread(self.file_dir.text(), "sdae", self.epochs.text(), hiddens=None)
 
         # Once the training thread is finished, the train_button should be accessible
         self.lr_thread.finished.connect(self.thread_finished)
@@ -97,7 +99,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
             self.dataset_is_selected = True
             draw_sample_info_statistics(path)
             self.sample_statistics.setPixmap(QPixmap("../res/venn.png"))
-            os.remove("../res/venn.png")
+            # os.remove("../res/venn.png")
 
     # Train the model
     def train(self):
@@ -154,6 +156,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     self.loss_curve.setPixmap(QPixmap("../res/pics/waiting.png"))
                     self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
                     self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
+
+    # Clear existing results
+    def clear(self):
+        pass
 
     # Set the train_button accessible
     def thread_finished(self):
