@@ -52,10 +52,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
         # Place some labels
         self.model_sketch.setPixmap(QPixmap("../res/pics/choose_model.png"))
-        self.sample_statistics.setPixmap(QPixmap("../res/pics/blank.png"))
-        self.loss_curve.setPixmap(QPixmap("../res/pics/blank.png"))
-        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank.png"))
-        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank.png"))
+        self.sample_statistics.setPixmap(QPixmap("../res/pics/blank_loss.png"))
+        self.loss_curve.setPixmap(QPixmap("../res/pics/blank_loss.png"))
+        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
+        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
         self.label_lr.setStyleSheet("QLabel { background-color : HotPink }")
         self.label_sdae.setStyleSheet("QLabel { background-color : CornflowerBlue }")
 
@@ -159,7 +159,11 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
     # Clear existing results
     def clear(self):
-        pass
+        self.loss_curve.setPixmap(QPixmap("../res/pics/blank_loss.png"))
+        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
+        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
+        self.epochs.clear()
+        self.hiddens.clear()
 
     # Set the train_button accessible
     def thread_finished(self):
