@@ -10,8 +10,8 @@ from ui.panel import Ui_MainWindow
 from model.control import *
 
 
-# TODO: Calculate f1-score, auc, recall, precision
-# TODO: Add sdae models to the system
+# TODO: Calculate acc, auc, f1-score, recall, precision
+# TODO: Debug the whole fucking system
 
 class ModelThread(QThread):
     finished = pyqtSignal()

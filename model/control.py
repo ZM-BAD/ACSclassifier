@@ -100,7 +100,7 @@ def draw_sample_info_statistics(file_path):
     plt.savefig("../res/venn.png")
 
 
-# Do LR train
+# LR train as benchmark
 def lr_experiment(dataset_path, epoch):
     """
     :param dataset_path: <string>
@@ -221,11 +221,6 @@ def sdae_experiment(dataset_path, epoch, hiddens):
 
 
 if __name__ == "__main__":
-    # hiddens = [256, 128, 64]
+    hiddens = [256, 128, 64]
     # lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 100)
     # sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000, hiddens)
-    # result = (0, 0, 0, 0, 0)
-    result = (0.1, 0.2, 0.6, 0.5, 0.4)
-    event = "Bleeding events"
-    model = 'lr'
-    draw_event_graph(result, event, model)
