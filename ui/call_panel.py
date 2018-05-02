@@ -11,9 +11,7 @@ from model.control import *
 
 
 # TODO: Calculate f1-score, auc, recall, precision
-# TODO: Draw bleeding and ischemic graph
-# TODO: Add models to the system
-# TODO: Think how to organize the output data
+# TODO: Add sdae models to the system
 
 class ModelThread(QThread):
     finished = pyqtSignal()
@@ -52,7 +50,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
         # Place some labels
         self.model_sketch.setPixmap(QPixmap("../res/pics/choose_model.png"))
-        self.sample_statistics.setPixmap(QPixmap("../res/pics/blank_loss.png"))
+        self.sample_statistics.setPixmap(QPixmap("../res/pics/blank_statistics.png"))
         self.loss_curve.setPixmap(QPixmap("../res/pics/blank_loss.png"))
         self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
         self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
@@ -99,7 +97,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
             self.dataset_is_selected = True
             draw_sample_info_statistics(path)
             self.sample_statistics.setPixmap(QPixmap("../res/venn.png"))
-            # os.remove("../res/venn.png")
+            os.remove("../res/venn.png")
 
     # Train the model
     def train(self):
@@ -159,7 +157,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
     # Clear existing results
     def clear(self):
-        self.loss_curve.setPixmap(QPixmap("../res/pics/blank_loss.png"))
+        self.loss_curve.setPixmap(QPixmap("../res/pics/blank_loss.png").scaled(400, 335))
         self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
         self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
         self.epochs.clear()
@@ -167,9 +165,9 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
     # Set the train_button accessible
     def thread_finished(self):
-        self.loss_curve.setPixmap(QPixmap("../res/pics/loss_curve.png").scaled(400, 335))
-        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/ischemic.png").scaled(400, 335))
-        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/bleeding.png").scaled(400, 335))
+        self.loss_curve.setPixmap(QPixmap("../res/output/loss_curve.png").scaled(400, 335))
+        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/output/ischemic.png"))
+        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/output/bleeding.png"))
         self.train_button.setEnabled(True)
 
     # Some exceptions and solutions
