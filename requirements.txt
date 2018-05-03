@@ -1,0 +1,7 @@
+numpy
+tensorflow
+matplotlib
+matplotlib-venn
+pyqt5
+pyqt5-tools
+scikit-learn
