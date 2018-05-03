@@ -48,6 +48,16 @@ pip install -r requirements.txt
 
 
 
+## Getting Started
+
+1. Clone this repository
+2. Open this project by PyCharm
+3. Generate panel.py file from panel.ui by PyUIC5
+4. Run 'call_panel'
+
+
+
+
 ## TODO：
 
 - [x] 从dataset中读取数据
