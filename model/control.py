@@ -216,7 +216,7 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     extract_feature_n = hiddens[-1]
     # loss曲线的采样数量
     sample_quantity = 50
-    step = sample_quantity // epoch
+    step = epoch // sample_quantity
     bleeding_loss = []
     ischemic_loss = []
 
@@ -225,14 +225,7 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     # SDAE本质上是无监督的，所以不需要label，训练SDAE用x_train即可
     # 对特征抽取后，有一层Softmax，但是对于二分类而言，Softmax退化为LR
     # LR是监督学习，需要训练。LR训练的样本是x_train抽取出来的x_extract_train，而样本标签依旧为y_train
-    print("1")
-    sdae = SDAE(origin_n_input, hiddens)
-    print("2")
-    sdae.pre_train(x_train)
-    print("3")
-    x_extract_train = sdae.encode(x_train)
-    print("4")
-    x_extract_test = sdae.encode(x_test)
+
     print("5")
     x = tf.placeholder(tf.float32, [None, extract_feature_n])
     w = tf.Variable(tf.zeros([extract_feature_n, n_class]))
@@ -248,6 +241,11 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
 
     with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        sdae = SDAE(origin_n_input, hiddens)
+        sdae.pre_train(x_train)
+        x_extract_train = sdae.encode(x_train)
+        x_extract_test = sdae.encode(x_test)
         for i in range(epoch):
             _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_extract_train, y_: y_train})
             if i % step == 0:
@@ -261,9 +259,7 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     ##########################################################################
     # Ischemic events
     x_train, x_test, y_train, y_test = train_test_split(sample, ischemic_label, test_size=0.3, random_state=0)
-    sdae.pre_train(x_train)
-    x_extract_train = sdae.encode(x_train)
-    x_extract_test = sdae.encode(x_test)
+
     x = tf.placeholder(tf.float32, [None, extract_feature_n])
     w = tf.Variable(tf.zeros([extract_feature_n, n_class]))
     b = tf.Variable(tf.zeros([n_class]))
@@ -279,6 +275,10 @@ def sdae_experiment(dataset_path, epoch, hiddens):
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
+        sdae = SDAE(origin_n_input, hiddens)
+        sdae.pre_train(x_train)
+        x_extract_train = sdae.encode(x_train)
+        x_extract_test = sdae.encode(x_test)
 
         for i in range(epoch):
             _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_extract_train, y_: y_train})
@@ -290,6 +290,7 @@ def sdae_experiment(dataset_path, epoch, hiddens):
 
         ischemic_result = evaluate(y_test, p)
         draw_event_graph(ischemic_result, event="Ischemic events", model="sdae")
+
     if len(bleeding_loss) > sample_quantity:
         bleeding_loss = bleeding_loss[:-1]
     if len(ischemic_loss) > sample_quantity:
@@ -299,5 +300,5 @@ def sdae_experiment(dataset_path, epoch, hiddens):
 
 if __name__ == "__main__":
     hiddens = [256, 128, 64]
-    # sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000, hiddens)
-    lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000)
+    sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000, hiddens)
+    # lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000)
