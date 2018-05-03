@@ -34,9 +34,9 @@
 
 ## Dependencies
 
-编程语言：Python 3.6.5(64-bit)  
-机器学习框架：TensorFlow ~~1.7.0~~ 1.8.0  
-GUI Lib: ~~Tkinter~~ PyQt 5.10.1
+Programming Language: Python 3.6.5(64-bit)  
+Machine Learning Framework: TensorFlow ~~1.7.0~~ 1.8.0  
+GUI lib: ~~Tkinter~~ PyQt 5.10.1
 
 
 
