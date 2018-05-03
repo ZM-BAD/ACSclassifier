@@ -12,8 +12,7 @@
 ![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/new_model.png)
 
 
-~~但是实际可能不按照模型来实现，所以模型仅为参考~~  
-~~毕业设计要赶DDL，我能怎么办，我也很绝望啊~~  
+~~但是实际可能不按照模型来实现，所以模型仅为参考~~ 
 
 整体思路为：  
 1. 利用SDAE对输入层进行特征抽取
@@ -27,6 +26,20 @@
 
 ![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/panel.png)
 
+改用PyQt5重写以后，**软件界面如下：**
+
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/new_panel.png)
+
+
+
+## Dependencies
+
+编程语言：Python 3.6.5(64-bit)  
+机器学习框架：TensorFlow ~~1.7.0~~ 1.8.0  
+GUI Lib: ~~Tkinter~~ PyQt 5.10.1
+
+
+
 ## Install Requirements
 
 ```
@@ -35,12 +48,6 @@ pip install -r requirements.txt
 
 
 
-
-## 技术路线
-编程语言：Python 3.6.5(64-bit)  
-机器学习框架：TensorFlow ~~1.7.0~~ 1.8.0  
-GUI Lib: ~~Tkinter~~ PyQt 5.10.1
-
 ## TODO：
 
 - [x] 从dataset中读取数据
@@ -48,4 +55,6 @@ GUI Lib: ~~Tkinter~~ PyQt 5.10.1
 - [x] 运用LR进行分类，作为benchmark，得出AUC、F1-score、Recall、Precision等模型指标
 - [x] 利用Softmax对抽取的特征进行分类
 - [x] 为整个系统构建GUI界面
-- [ ] 模块间联调
+- [x] 模块间联调，整个代码跑起来
+- [ ] Code Review，~~并试图解决一些玄学错误~~
+- [ ] 调试参数，跑出理想结果
