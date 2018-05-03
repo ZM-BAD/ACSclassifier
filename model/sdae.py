@@ -135,5 +135,7 @@ if __name__ == "__main__":
     test_x = np.array([[1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1]])
     sdae.pre_train(train_x)
+    hidden = sdae.encode(test_x)
     rec_x = sdae.reconstruct(test_x)
-    print(rec_x)
+    # print(rec_x)
+    print(hidden)

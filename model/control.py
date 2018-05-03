@@ -11,20 +11,24 @@ from model.data import read_from_csv
 from model.sdae import SDAE
 
 
+# TODO: Calculate acc, auc, f1-score, recall, precision
+# TODO: Add SDAE model
+# TODO: Debug the whole fucking system
+
 # Calculate acc, auc, f1-score, recall, precision
 def evaluate(real, pred):
     r = np.reshape(real, [-1])
     p = np.reshape(pred, [-1])
     acc = accuracy_score(r, p)
     auc = roc_auc_score(r, p)
-    f_one_score = f1_score(r, p)
-    recall = recall_score(r, p)
-    precision = precision_score(r, p)
+    f_one_score = f1_score(r, p, average='weighted')
+    recall = recall_score(r, p, average='macro')
+    precision = precision_score(r, p, average='macro')
 
     return acc, auc, f_one_score, recall, precision
 
 
-# Draw auc, f1-score, recall, precision graph
+# Draw acc, auc, f1-score, recall, precision graph
 def draw_event_graph(result, event, model):
     """
     :param result: <tuple> (acc, auc, f1-score, recall, precision)
@@ -68,7 +72,6 @@ def draw_loss_curve(bleeding_loss, ischemic_loss, epoch, sample_quantity):
     plt.yticks(fontsize='xx-small')
 
     plt.legend(loc='upper right', fontsize='large', frameon=False)
-    # Delete top and right frames
     ax.spines['top'].set_color('none')
     ax.spines['right'].set_color('none')
     plt.savefig("../res/output/loss_curve.png")
@@ -115,7 +118,7 @@ def lr_experiment(dataset_path, epoch):
     ischemic_loss = []
 
     # Collect 50 loss values regardless of the value of epoch
-    sample_quantity = 5
+    sample_quantity = 50
     epoch = int(epoch)
     step = epoch // sample_quantity
 
@@ -158,9 +161,9 @@ def lr_experiment(dataset_path, epoch):
                 p[i, 1] = 0
 
         bleeding_result = evaluate(real=y_test, pred=p)
-        # draw_event_graph(bleeding_result, event="Bleeding events", model="lr")
+        draw_event_graph(bleeding_result, event="Bleeding events", model="lr")
 
-    ##########################################################################################################
+    ##########################################################################
     # Ischemic events
     x = tf.placeholder(tf.float32, [None, n_feature])
     w = tf.Variable(tf.zeros([n_feature, n_class]))
@@ -198,7 +201,7 @@ def lr_experiment(dataset_path, epoch):
                 p[i, 1] = 0
 
         ischemic_result = evaluate(real=y_test, pred=p)
-        # draw_event_graph(ischemic_result, event="Ischemic events", model="lr")
+        draw_event_graph(ischemic_result, event="Ischemic events", model="lr")
 
     if len(bleeding_loss) > sample_quantity:
         bleeding_loss = bleeding_loss[:-1]
@@ -215,12 +218,112 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     :param hiddens: <list>
     :return:
     """
+    epoch = int(epoch)
     sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
-    n_input = len(sample[0])
-    # sdae = SDAE(n_input, hiddens)
+    origin_n_input = len(sample[0])
+    n_class = 2
+    # 抽取后的feature数量
+    extract_feature_n = hiddens[-1]
+    # loss曲线的采样数量
+    sample_quantity = 50
+    step = sample_quantity // epoch
+    bleeding_loss = []
+    ischemic_loss = []
+
+    # Bleeding events
+    x_train, x_test, y_train, y_test = train_test_split(sample, bleed_label, test_size=0.3, random_state=0)
+    # SDAE本质上是无监督的，所以不需要label，训练SDAE用x_train即可
+    # 对特征抽取后，有一层Softmax，但是对于二分类而言，Softmax退化为LR
+    # LR是监督学习，需要训练。LR训练的样本是x_train抽取出来的x_extract_train，而样本标签依旧为y_train
+    print("1")
+    sdae = SDAE(origin_n_input, hiddens)
+    print("2")
+    sdae.pre_train(x_train)
+    print("3")
+    x_extract_train = sdae.encode(x_train)
+    print("4")
+    x_extract_test = sdae.encode(x_test)
+    print("5")
+    x = tf.placeholder(tf.float32, [None, extract_feature_n])
+    w = tf.Variable(tf.zeros([extract_feature_n, n_class]))
+    b = tf.Variable(tf.zeros([n_class]))
+
+    # y is prediction
+    y = tf.matmul(x, w) + b
+    pred = tf.nn.softmax(y)
+
+    # y_ is real
+    y_ = tf.placeholder(tf.float32, [None, n_class])
+    cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
+    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+
+    with tf.Session() as sess:
+        for i in range(epoch):
+            _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_extract_train, y_: y_train})
+            if i % step == 0:
+                bleeding_loss.append(loss)
+
+        p = sess.run(pred, feed_dict={x: x_extract_test})
+        for i in range(len(p)):
+            if p[i, 0] >= 0.5:
+                p[i, 0] = 1
+            else:
+                p[i, 0] = 0
+            if p[i, 1] >= 0.5:
+                p[i, 1] = 1
+            else:
+                p[i, 1] = 0
+
+        bleeding_result = evaluate(real=y_test, pred=p)
+        draw_event_graph(bleeding_result, event="Bleeding events", model="sdae")
+
+    ##########################################################################
+    # Ischemic events
+    x_train, x_test, y_train, y_test = train_test_split(sample, ischemic_label, test_size=0.3, random_state=0)
+    sdae.pre_train(x_train)
+    x_extract_train = sdae.encode(x_train)
+    x_extract_test = sdae.encode(x_test)
+    x = tf.placeholder(tf.float32, [None, extract_feature_n])
+    w = tf.Variable(tf.zeros([extract_feature_n, n_class]))
+    b = tf.Variable(tf.zeros([n_class]))
+
+    # y is prediction
+    y = tf.matmul(x, w) + b
+    pred = tf.nn.softmax(y)
+
+    # y_ is real
+    y_ = tf.placeholder(tf.float32, [None, n_class])
+    cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
+    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+
+        for i in range(epoch):
+            _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_extract_train, y_: y_train})
+            if i % step == 0:
+                print(loss, i)
+                ischemic_loss.append(loss)
+
+        p = sess.run(pred, feed_dict={x: x_extract_test})
+        for i in range(len(p)):
+            if p[i, 0] >= 0.5:
+                p[i, 0] = 1
+            else:
+                p[i, 0] = 0
+            if p[i, 1] >= 0.5:
+                p[i, 1] = 1
+            else:
+                p[i, 1] = 0
+        ischemic_result = evaluate(real=y_test, pred=p)
+        draw_event_graph(ischemic_result, event="Ischemic events", model="sdae")
+    if len(bleeding_loss) > sample_quantity:
+        bleeding_loss = bleeding_loss[:-1]
+    if len(ischemic_loss) > sample_quantity:
+        ischemic_loss = ischemic_loss[:-1]
+    draw_loss_curve(bleeding_loss, ischemic_loss, epoch, sample_quantity)
 
 
 if __name__ == "__main__":
     hiddens = [256, 128, 64]
-    # lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 100)
-    # sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000, hiddens)
+    sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000, hiddens)

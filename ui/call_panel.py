@@ -10,9 +10,6 @@ from ui.panel import Ui_MainWindow
 from model.control import *
 
 
-# TODO: Calculate acc, auc, f1-score, recall, precision
-# TODO: Debug the whole fucking system
-
 class ModelThread(QThread):
     finished = pyqtSignal()
 
