@@ -15,7 +15,7 @@ class ModelThread(QThread):
 
     def __init__(self, dataset_path, model, epochs, hiddens):
         """
-        :param model: 1 lr, 2 sdae
+        :param model: "lr" or "sdae"
         :param epochs: epochs
         :param hiddens: may be used
         """

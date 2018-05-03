@@ -11,21 +11,29 @@ from model.data import read_from_csv
 from model.sdae import SDAE
 
 
-# TODO: Calculate acc, auc, f1-score, recall, precision
 # TODO: Add SDAE model
-# TODO: Debug the whole fucking system
 
 # Calculate acc, auc, f1-score, recall, precision
-def evaluate(real, pred):
-    r = np.reshape(real, [-1])
-    p = np.reshape(pred, [-1])
-    acc = accuracy_score(r, p)
-    auc = roc_auc_score(r, p)
-    f_one_score = f1_score(r, p, average='weighted')
-    recall = recall_score(r, p, average='macro')
-    precision = precision_score(r, p, average='macro')
+def evaluate(tol_label, tol_pred):
+    """
+    对模型的预测性能进行评估
+    :param tol_label: 测试样本的真实标签
+    :param tol_pred: 测试样本的预测概率分布
+    :return: acc, auc, f1-score, recall, precision
+    """
+    assert tol_label.shape == tol_pred.shape
 
-    return acc, auc, f_one_score, recall, precision
+    y_true = np.argmax(tol_label, axis=1)
+    y_pred = np.argmax(tol_pred, axis=1)
+
+    accuracy = accuracy_score(y_true, y_pred)
+    auc = roc_auc_score(tol_label, tol_pred, average=None)
+
+    precision = precision_score(y_true, y_pred, average=None)
+    recall = recall_score(y_true, y_pred, average=None)
+    f_score = f1_score(y_true, y_pred, average=None)
+
+    return accuracy, auc, f_score, recall, precision
 
 
 # Draw acc, auc, f1-score, recall, precision graph
@@ -47,7 +55,7 @@ def draw_event_graph(result, event, model):
         color = "HotPink"
     else:
         color = "CornflowerBlue"
-
+    result = (result[0], result[1][0], result[2][0], result[3][0], result[4][0])
     plt.bar(range(len(result)), result, color=color)
     plt.xticks(range(len(result)), (u"ACC", u"AUC", u"F1-score", u"Recall", u"Precision"))
     plt.savefig("../res/output/" + pic_name)
@@ -150,17 +158,8 @@ def lr_experiment(dataset_path, epoch):
                 bleeding_loss.append(loss)
 
         p = sess.run(pred, feed_dict={x: x_test})
-        for i in range(len(p)):
-            if p[i, 0] >= 0.5:
-                p[i, 0] = 1
-            else:
-                p[i, 0] = 0
-            if p[i, 1] >= 0.5:
-                p[i, 1] = 1
-            else:
-                p[i, 1] = 0
 
-        bleeding_result = evaluate(real=y_test, pred=p)
+        bleeding_result = evaluate(y_test, p)
         draw_event_graph(bleeding_result, event="Bleeding events", model="lr")
 
     ##########################################################################
@@ -190,17 +189,8 @@ def lr_experiment(dataset_path, epoch):
                 ischemic_loss.append(loss)
 
         p = sess.run(pred, feed_dict={x: x_test})
-        for i in range(len(p)):
-            if p[i, 0] >= 0.5:
-                p[i, 0] = 1
-            else:
-                p[i, 0] = 0
-            if p[i, 1] >= 0.5:
-                p[i, 1] = 1
-            else:
-                p[i, 1] = 0
 
-        ischemic_result = evaluate(real=y_test, pred=p)
+        ischemic_result = evaluate(y_test, p)
         draw_event_graph(ischemic_result, event="Ischemic events", model="lr")
 
     if len(bleeding_loss) > sample_quantity:
@@ -264,17 +254,8 @@ def sdae_experiment(dataset_path, epoch, hiddens):
                 bleeding_loss.append(loss)
 
         p = sess.run(pred, feed_dict={x: x_extract_test})
-        for i in range(len(p)):
-            if p[i, 0] >= 0.5:
-                p[i, 0] = 1
-            else:
-                p[i, 0] = 0
-            if p[i, 1] >= 0.5:
-                p[i, 1] = 1
-            else:
-                p[i, 1] = 0
 
-        bleeding_result = evaluate(real=y_test, pred=p)
+        bleeding_result = evaluate(y_test, p)
         draw_event_graph(bleeding_result, event="Bleeding events", model="sdae")
 
     ##########################################################################
@@ -306,16 +287,8 @@ def sdae_experiment(dataset_path, epoch, hiddens):
                 ischemic_loss.append(loss)
 
         p = sess.run(pred, feed_dict={x: x_extract_test})
-        for i in range(len(p)):
-            if p[i, 0] >= 0.5:
-                p[i, 0] = 1
-            else:
-                p[i, 0] = 0
-            if p[i, 1] >= 0.5:
-                p[i, 1] = 1
-            else:
-                p[i, 1] = 0
-        ischemic_result = evaluate(real=y_test, pred=p)
+
+        ischemic_result = evaluate(y_test, p)
         draw_event_graph(ischemic_result, event="Ischemic events", model="sdae")
     if len(bleeding_loss) > sample_quantity:
         bleeding_loss = bleeding_loss[:-1]
@@ -326,4 +299,5 @@ def sdae_experiment(dataset_path, epoch, hiddens):
 
 if __name__ == "__main__":
     hiddens = [256, 128, 64]
-    sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000, hiddens)
+    # sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000, hiddens)
+    lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 1000)

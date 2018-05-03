@@ -27,6 +27,15 @@
 
 ![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/panel.png)
 
+## Install Requirements
+
+```
+pip install -r requirements.txt
+```
+
+
+
+
 ## 技术路线
 编程语言：Python 3.6.5(64-bit)  
 机器学习框架：TensorFlow ~~1.7.0~~ 1.8.0  
@@ -36,7 +45,7 @@ GUI Lib: ~~Tkinter~~ PyQt 5.10.1
 
 - [x] 从dataset中读取数据
 - [x] 建立SDAE，进行特征抽取
-- [ ] 运用LR进行分类，作为benchmark，得出AUC、F1-score、Recall、Precision等模型指标
-- [ ] 利用Softmax对抽取的特征进行分类
+- [x] 运用LR进行分类，作为benchmark，得出AUC、F1-score、Recall、Precision等模型指标
+- [x] 利用Softmax对抽取的特征进行分类
 - [x] 为整个系统构建GUI界面
 - [ ] 模块间联调
