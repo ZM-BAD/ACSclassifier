@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'ZM-BAD'
 
+import os
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,8 +11,6 @@ from matplotlib_venn import venn2
 from model.data import read_from_csv
 from model.sdae import SDAE
 
-
-# TODO: Add SDAE model
 
 # Calculate acc, auc, f1-score, recall, precision
 def evaluate(tol_label, tol_pred):
@@ -46,18 +45,21 @@ def draw_event_graph(result, event, model):
     """
     plt.figure(figsize=(4, 3.35), dpi=100)
     plt.grid(True)
+
+    pic_name = "ischemic.png"
     if event == "Bleeding events":
         pic_name = "bleeding.png"
-    else:
-        pic_name = "ischemic.png"
 
+    color = "CornflowerBlue"
     if model == "lr":
         color = "HotPink"
-    else:
-        color = "CornflowerBlue"
+
     result = (result[0], result[1][0], result[2][0], result[3][0], result[4][0])
     plt.bar(range(len(result)), result, color=color)
     plt.xticks(range(len(result)), (u"ACC", u"AUC", u"F1-score", u"Recall", u"Precision"))
+
+    if not os.path.exists("../res/output"):
+        os.mkdir("../res/output")
     plt.savefig("../res/output/" + pic_name)
 
 
@@ -82,6 +84,8 @@ def draw_loss_curve(bleeding_loss, ischemic_loss, epoch, sample_quantity):
     plt.legend(loc='upper right', fontsize='large', frameon=False)
     ax.spines['top'].set_color('none')
     ax.spines['right'].set_color('none')
+    if not os.path.exists("../res/output"):
+        os.mkdir("../res/output")
     plt.savefig("../res/output/loss_curve.png")
 
 

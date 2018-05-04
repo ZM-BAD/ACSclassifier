@@ -52,7 +52,3 @@ def read_from_csv(datafile_path):
 
 if __name__ == "__main__":
     samples, bleed_labels, ischemic_labels = read_from_csv("../res/dataset.csv")
-
-    # print(samples)
-    # print(bleed_labels)
-    # print(ischemic_labels)
