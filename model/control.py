@@ -201,7 +201,7 @@ def lr_experiment(dataset_path, epoch):
 
 
 # Do SDAE train
-def sdae_experiment(dataset_path, epoch, hiddens):
+def sdae_experiment(dataset_path, epoch, hiddens_str):
     """
     :param dataset_path: <string>
     :param epoch: <string>
@@ -209,6 +209,9 @@ def sdae_experiment(dataset_path, epoch, hiddens):
     :return:
     """
     epoch = int(epoch)
+    hiddens = []
+    for i in hiddens_str:
+        hiddens.append(int(i))
     sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
     origin_n_input = len(sample[0])
     n_class = 2
