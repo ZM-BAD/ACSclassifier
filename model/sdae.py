@@ -83,14 +83,6 @@ class SDAE(object):
                 self.sdae[index].partial_fit(temp_train)
             temp_train = self.sdae[index].encode_func(temp_train).eval(session=self.sess)
 
-    # def pre_train(self, data_set, batch_size=128):
-    #     for i in range(self.stacks):
-    #         while data_set.epoch_completed < self.epochs:
-    #             x, _ = data_set.next_batch(batch_size)
-    #             self.sdae[i].partial_fit(x)
-    #         x = self.sdae[i].encode(data_set.examples)
-    #         data_set = DataSet(x, data_set.labels)
-
     def encode(self, x):
         """
         get the hidden representation
