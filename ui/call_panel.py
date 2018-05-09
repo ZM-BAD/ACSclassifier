@@ -2,12 +2,12 @@
 __author__ = 'ZM-BAD'
 
 import sys
-import os
+from model.experiment import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from ui.panel import Ui_MainWindow
-from model.control import *
+from model.utils import *
 
 
 class ModelThread(QThread):
