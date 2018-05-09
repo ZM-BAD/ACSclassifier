@@ -5,7 +5,7 @@ import os
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, recall_score, precision_score
 from matplotlib_venn import venn2
 from model.data import read_from_csv
@@ -152,18 +152,32 @@ def lr_experiment(dataset_path, epoch):
     # accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
+        split_label = bleed_label[:, 0]
+        kf = StratifiedKFold(n_splits=5, shuffle=True)
+        for train_index, test_index in kf.split(sample, split_label):
+            x_train = []
+            y_train = []
+            for i in train_index:
+                x_train.append(sample[i])
+                y_train.append(bleed_label[i])
+            x_train = np.array(x_train)
+            y_train = np.array(y_train)
+            x_test = []
+            y_test = []
+            for i in test_index:
+                x_test.append(sample[i])
+                y_test.append(bleed_label[i])
+            x_test = np.array(x_test)
+            y_test = np.array(y_test)
+            for i in range(epoch):
+                _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
+                if i % step == 0:
+                    print(loss, i)
+                    bleeding_loss.append(loss)
 
-        x_train, x_test, y_train, y_test = train_test_split(sample, bleed_label, test_size=0.3, random_state=0)
+            p = sess.run(pred, feed_dict={x: x_test})
 
-        for i in range(epoch):
-            _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
-            if i % step == 0:
-                print(loss, i)
-                bleeding_loss.append(loss)
-
-        p = sess.run(pred, feed_dict={x: x_test})
-
-        bleeding_result = evaluate(y_test, p)
+            bleeding_result = evaluate(y_test, p)
         draw_event_graph(bleeding_result, event="Bleeding events", model="lr")
 
     ##########################################################################
@@ -209,7 +223,7 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
     """
     :param dataset_path: <string>
     :param epoch: <string>
-    :param hiddens: <list>
+    :param hiddens_str: <list>
     :return:
     """
     epoch = int(epoch)
@@ -233,7 +247,6 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
     # 对特征抽取后，有一层Softmax，但是对于二分类而言，Softmax退化为LR
     # LR是监督学习，需要训练。LR训练的样本是x_train抽取出来的x_extract_train，而样本标签依旧为y_train
 
-    print("5")
     x = tf.placeholder(tf.float32, [None, extract_feature_n])
     w = tf.Variable(tf.zeros([extract_feature_n, n_class]))
     b = tf.Variable(tf.zeros([n_class]))
