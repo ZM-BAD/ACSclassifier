@@ -88,6 +88,10 @@ class DAE(object):
             tf.add(tf.matmul(x + self.training_scale * tf.random_normal((self.n_input,)), self.weights['w1']),
                    self.weights['b1']))
 
+    # Train DAE with noise, but use DAE without noise
+    def encode_func_without_noise(self, x):
+        return self.transfer(tf.add(tf.matmul(x, self.weights['w1']), self.weights['b1']))
+
     def decode_func(self, hidden):
         # different with 'decode', this method accepts tensor and return tensor
         return tf.add(tf.matmul(hidden, self.weights['w2']), self.weights['b2'])

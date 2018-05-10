@@ -34,7 +34,8 @@ class SDAE(object):
             self.x = tf.placeholder(tf.float32, [None, n_input], name="input")
             self.hidden = self.x
             for dae in self.sdae:
-                self.hidden = dae.encode_func(self.hidden)
+                # self.hidden = dae.encode_func(self.hidden)
+                self.hidden = dae.encode_func_without_noise(self.hidden)
 
             self.rec = self.hidden
             for dae in reversed(self.sdae):
