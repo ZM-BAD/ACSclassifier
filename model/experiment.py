@@ -52,21 +52,11 @@ def lr_experiment(dataset_path, epoch):
         for train_index, test_index in kf.split(sample, split_label):
             count += 1
 
-            x_train = []
-            y_train = []
-            for i in train_index:
-                x_train.append(sample[i])
-                y_train.append(bleed_label[i])
-            x_train = np.array(x_train)
-            y_train = np.array(y_train)
+            x_train = sample[train_index]
+            y_train = bleed_label[train_index]
 
-            x_test = []
-            y_test = []
-            for i in test_index:
-                x_test.append(sample[i])
-                y_test.append(bleed_label[i])
-            x_test = np.array(x_test)
-            y_test = np.array(y_test)
+            x_test = sample[test_index]
+            y_test = bleed_label[test_index]
 
             if count == 1:
                 all_y_test = y_test
@@ -115,21 +105,11 @@ def lr_experiment(dataset_path, epoch):
 
         for train_index, test_index in kf.split(sample, split_label):
             count += 1
-            x_train = []
-            y_train = []
-            for i in train_index:
-                x_train.append(sample[i])
-                y_train.append(ischemic_label[i])
-            x_train = np.array(x_train)
-            y_train = np.array(y_train)
+            x_train = sample[train_index]
+            y_train = ischemic_label[train_index]
 
-            x_test = []
-            y_test = []
-            for i in test_index:
-                x_test.append(sample[i])
-                y_test.append(ischemic_label[i])
-            x_test = np.array(x_test)
-            y_test = np.array(y_test)
+            x_test = sample[test_index]
+            y_test = ischemic_label[test_index]
 
             if count == 1:
                 all_y_test = y_test
@@ -193,7 +173,6 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
     train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
 
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
         kf = StratifiedKFold(n_splits=5, shuffle=True)
         split_label = bleed_label[:, 0]
         count = 0
@@ -202,23 +181,14 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
         sdae = SDAE(origin_n_input, hiddens)
 
         for train_index, test_index in kf.split(sample, split_label):
+            sess.run(tf.global_variables_initializer())
             count += 1
             # Get train set and test set
-            x_train = []
-            y_train = []
-            for i in train_index:
-                x_train.append(sample[i])
-                y_train.append(bleed_label[i])
-            x_train = np.array(x_train)
-            y_train = np.array(y_train)
+            x_train = sample[train_index]
+            y_train = bleed_label[train_index]
 
-            x_test = []
-            y_test = []
-            for i in test_index:
-                x_test.append(sample[i])
-                y_test.append(bleed_label[i])
-            x_test = np.array(x_test)
-            y_test = np.array(y_test)
+            x_test = sample[test_index]
+            y_test = bleed_label[test_index]
 
             if count == 1:
                 all_y_test = y_test
@@ -264,7 +234,6 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
     train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
 
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
         kf = StratifiedKFold(n_splits=5, shuffle=True)
         split_label = ischemic_label[:, 0]
         count = 0
@@ -273,23 +242,14 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
         sdae = SDAE(origin_n_input, hiddens)
 
         for train_index, test_index in kf.split(sample, split_label):
+            sess.run(tf.global_variables_initializer())
             count += 1
             # Get train set and test set
-            x_train = []
-            y_train = []
-            for i in train_index:
-                x_train.append(sample[i])
-                y_train.append(ischemic_label[i])
-            x_train = np.array(x_train)
-            y_train = np.array(y_train)
+            x_train = sample[train_index]
+            y_train = ischemic_label[train_index]
 
-            x_test = []
-            y_test = []
-            for i in test_index:
-                x_test.append(sample[i])
-                y_test.append(ischemic_label[i])
-            x_test = np.array(x_test)
-            y_test = np.array(y_test)
+            x_test = sample[test_index]
+            y_test = ischemic_label[test_index]
 
             if count == 1:
                 all_y_test = y_test

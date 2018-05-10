@@ -90,7 +90,7 @@ class DAE(object):
 
     def decode_func(self, hidden):
         # different with 'decode', this method accepts tensor and return tensor
-        return self.transfer(tf.add(tf.matmul(hidden, self.weights['w2']), self.weights['b2']))
+        return tf.add(tf.matmul(hidden, self.weights['w2']), self.weights['b2'])
 
     def reconstruct(self, x):
         return self.sess.run(self.reconstruction, feed_dict={self.x: x, self.scale: self.training_scale})
