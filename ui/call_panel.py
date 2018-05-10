@@ -174,6 +174,8 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
     def invalid_dataset(self):
         reply = QMessageBox.warning(self, "错误", "请选择正确的数据集", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        self.sample_statistics.setPixmap(QPixmap("../res/pics/blank_statistics.png"))
+        self.dataset_is_selected = False
         print(reply)
 
     def no_model_chosen(self):
