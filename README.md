@@ -64,5 +64,5 @@ pip install -r requirements.txt
 - [x] 利用Softmax对抽取的特征进行分类
 - [x] 为整个系统构建GUI界面
 - [x] 模块间联调，整个代码跑起来
-- [ ] Code Review，~~并试图解决一些玄学错误~~
+- [x] Code Review，~~并试图解决一些玄学错误~~
 - [ ] 调试参数，跑出理想结果
