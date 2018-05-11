@@ -82,6 +82,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
 
     def choose_file(self):
+        self.dataset_is_selected = False
         file = QFileDialog.getOpenFileName(self, "打开", self.file_dir.text(), "All Files (*)")
         file_path = file[0]
         self.file_dir.setText(file_path)
