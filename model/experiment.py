@@ -2,7 +2,7 @@
 __author__ = 'ZM-BAD'
 
 import tensorflow as tf
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.model_selection import StratifiedKFold
 from model.sdae import SDAE
 from model.utils import *
 
