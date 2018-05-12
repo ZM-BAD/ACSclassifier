@@ -23,11 +23,11 @@ def evaluate(tol_label, tol_pred):
     y_pred = np.argmax(tol_pred, axis=1)
 
     accuracy = accuracy_score(y_true, y_pred)
-    auc = roc_auc_score(tol_label, tol_pred, average=None)
+    auc = roc_auc_score(tol_label, tol_pred)
 
-    precision = precision_score(y_true, y_pred, average=None)
-    recall = recall_score(y_true, y_pred, average=None)
-    f_score = f1_score(y_true, y_pred, average=None)
+    precision = precision_score(y_true, y_pred, average='weighted')
+    recall = recall_score(y_true, y_pred, average='weighted')
+    f_score = f1_score(y_true, y_pred, average='weighted')
 
     return accuracy, auc, f_score, recall, precision
 

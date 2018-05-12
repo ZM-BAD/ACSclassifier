@@ -7,7 +7,7 @@ import tensorflow as tf
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, recall_score, precision_score
 
-
+# TODO:
 def xavier_init(fan_in, fan_out, constant=1):
     """
     :param fan_in: 输入节点数量
@@ -263,11 +263,11 @@ def evaluate(tol_label, tol_pred):
     y_pred = np.argmax(tol_pred, axis=1)
 
     accuracy = accuracy_score(y_true, y_pred)
-    auc = roc_auc_score(tol_label, tol_pred, average=None)
+    auc = roc_auc_score(tol_label, tol_pred)
 
-    precision = precision_score(y_true, y_pred, average=None)
-    recall = recall_score(y_true, y_pred, average=None)
-    f_score = f1_score(y_true, y_pred, average=None)
+    precision = precision_score(y_true, y_pred, average='weighted')
+    recall = recall_score(y_true, y_pred, average='weighted')
+    f_score = f1_score(y_true, y_pred, average='weighted')
 
     return accuracy, auc, f_score, recall, precision
 
@@ -284,7 +284,7 @@ def draw_event_graph(result, event, model, learning_rate, epoch, hiddens=None):
     :return:
     """
     file_name = "result.txt"
-    result = (result[0], result[1][0], result[2][0], result[3][0], result[4][0])
+    result = (result[0], result[1], result[2], result[3], result[4])
     with open(file_name, 'a') as f:
         f.write(model + " model " + event + "\n")
 
@@ -392,6 +392,9 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
                 all_y_test = np.append(all_y_test, y_test, axis=0)
             for i in range(epoch):
                 _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
+                # p = sess.run(pred, feed_dict={x: x_test})
+                # auc = roc_auc_score(y_test, p)
+                # print(auc)
                 if i % step == 0:
                     # print(loss, i)
                     bleeding_loss.append(loss)
@@ -424,7 +427,7 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
     train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
+
         split_label = ischemic_label[:, 0]
         kf = StratifiedKFold(n_splits=5, shuffle=True)
         count = 0
@@ -432,6 +435,7 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
         all_p = []
 
         for train_index, test_index in kf.split(sample, split_label):
+            sess.run(tf.global_variables_initializer())
             count += 1
             x_train = sample[train_index]
             y_train = ischemic_label[train_index]
@@ -446,6 +450,10 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
 
             for i in range(epoch):
                 _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
+                p = sess.run(pred, feed_dict={x: x_test})
+                # print(loss)
+                auc = roc_auc_score(y_test, p)
+                print(auc)
                 if i % step == 0:
                     # print(loss, i)
                     ischemic_loss.append(loss)
@@ -609,7 +617,7 @@ def sdae_experiment(epoch, hiddens, learning_rate, sample, bleed_label, ischemic
 
 
 if __name__ == "__main__":
-    dataset = "dataset.csv"
+    dataset = "../res/dataset.csv"
     sample, bleed_label, ischemic_label = read_from_csv(dataset)
     epochs = [300, 500, 1000]
     learning_rates = [0.001, 0.0001, 0.00001]
@@ -623,10 +631,11 @@ if __name__ == "__main__":
     # model 1, 5, 6, 7形成对照，探究层数对效果的影响
     # model 2, 3, 4, 5形成对照，探究层数一定，节点数对效果的影响
 
-    for i in epochs:
-        for j in learning_rates:
-            lr_experiment(i, j, sample, bleed_label, ischemic_label)
-            # for hidden in hiddens:
-            #     sdae_experiment(i, hidden, j, sample, bleed_label, ischemic_label)
+    lr_experiment(500, 0.001, sample, bleed_label, ischemic_label)
+    # for i in epochs:
+    #     for j in learning_rates:
+    #         lr_experiment(i, j, sample, bleed_label, ischemic_label)
+    #         # for hidden in hiddens:
+    #         #     sdae_experiment(i, hidden, j, sample, bleed_label, ischemic_label)
 
     # So, we train 72 models in total
