@@ -13,23 +13,26 @@ from model.utils import *
 class ModelThread(QThread):
     finished = pyqtSignal()
 
-    def __init__(self, dataset_path, model, epochs, hiddens):
+    def __init__(self, dataset_path, model, epochs, learning_rate, hiddens):
         """
+        :param dataset_path:
         :param model: "lr" or "sdae"
-        :param epochs: epochs
-        :param hiddens: may be used
+        :param epochs: <string>
+        :param learning_rate: <string>
+        :param hiddens: <string>
         """
         super(ModelThread, self).__init__()
         self.dataset_path = dataset_path
         self.model = model
         self.epochs = epochs
         self.hiddens = hiddens
+        self.learning_rate = learning_rate
 
     def run(self):
         if self.model == "lr":
-            lr_experiment(self.dataset_path, self.epochs)
+            lr_experiment(self.dataset_path, self.epochs, self.learning_rate)
         else:
-            sdae_experiment(self.dataset_path, self.epochs, self.hiddens)
+            sdae_experiment(self.dataset_path, self.epochs, self.hiddens, self.learning_rate)
 
         self.finished.emit()
 
@@ -58,11 +61,15 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.confirm_button.clicked.connect(self.confirm)
         self.train_button.clicked.connect(self.train)
         self.clear_button.clicked.connect(self.clear)
+        self.stop_button.setEnabled(False)
+        self.stop_button.clicked.connect(self.terminate)
         self.radioButton_lr.clicked.connect(self.show_lr_sketch)
         self.radioButton_sdae.clicked.connect(self.show_sdae_sketch)
 
-        self.lr_thread = ModelThread(self.file_dir.text(), "lr", self.epochs.text(), hiddens=None)
-        self.sdae_thread = ModelThread(self.file_dir.text(), "sdae", self.epochs.text(), hiddens=None)
+        self.lr_thread = ModelThread(self.file_dir.text(), "lr", self.epochs.text(), self.learning_rate.text(),
+                                     hiddens=None)
+        self.sdae_thread = ModelThread(self.file_dir.text(), "sdae", self.epochs.text(), self.learning_rate.text(),
+                                       hiddens=None)
 
         # Once the training thread is finished, the train_button should be accessible
         self.lr_thread.finished.connect(self.thread_finished)
@@ -115,13 +122,24 @@ class MainForm(QMainWindow, Ui_MainWindow):
             self.invalid_epoch()
             return
 
+        # Check if the learning rate is valid
+        if not is_float_number(self.learning_rate.text()):
+            self.invalid_learning_rate()
+            return
+        learning_rate = float(self.learning_rate.text())
+        if learning_rate <= 0:
+            self.invalid_learning_rate()
+            return
+
         # Train LR model
         if self.radioButton_lr.isChecked():
             # First, set the button inaccessible
             self.train_button.setEnabled(False)
+            self.stop_button.setEnabled(True)
             # Then, set the parameters for the model
             self.lr_thread.dataset_path = self.file_dir.text()
             self.lr_thread.epochs = epoch
+            self.lr_thread.learning_rate = self.learning_rate.text()
             # Start the thread
             self.lr_thread.start()
             self.loss_curve.setPixmap(QPixmap("../res/pics/waiting.png"))
@@ -145,9 +163,11 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     return
                 else:
                     self.train_button.setEnabled(False)
+                    self.stop_button.setEnabled(True)
                     self.sdae_thread.dataset_path = self.file_dir.text()
                     self.sdae_thread.epochs = epoch
                     self.sdae_thread.hiddens = hiddens
+                    self.sdae_thread.learning_rate = self.learning_rate.text()
                     self.sdae_thread.start()
                     self.loss_curve.setPixmap(QPixmap("../res/pics/waiting.png"))
                     self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
@@ -159,13 +179,37 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
         self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
         self.epochs.clear()
+        self.learning_rate.clear()
         self.hiddens.clear()
+
+    # Terminate training
+    def terminate(self):
+        # Terminate the thread by force
+        if self.lr_thread.isRunning():
+            self.lr_thread.quit()
+            if self.lr_thread.isFinished():
+                print("OK")
+        if self.sdae_thread.isRunning():
+            self.sdae_thread.quit()
+            if not self.sdae_thread.isRunning():
+                print("OK")
+            if self.sdae_thread.isFinished():
+                print("OK")
+
+        # Set pics
+        self.loss_curve.setPixmap(QPixmap("../res/pics/blank_loss.png").scaled(400, 335))
+        self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
+        self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
+
+        self.stop_button.setEnabled(False)
+        self.train_button.setEnabled(True)
 
     # Set the train_button accessible
     def thread_finished(self):
         self.loss_curve.setPixmap(QPixmap("../res/output/loss_curve.png").scaled(400, 335))
         self.label_ischemic_event_pic.setPixmap(QPixmap("../res/output/ischemic.png"))
         self.label_bleeding_event_pic.setPixmap(QPixmap("../res/output/bleeding.png"))
+        self.stop_button.setEnabled(False)
         self.train_button.setEnabled(True)
 
     # Some exceptions and solutions
@@ -185,6 +229,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
     def invalid_epoch(self):
         reply = QMessageBox.warning(self, "错误", "无效的epoch参数\n请重新输入", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        print(reply)
+
+    def invalid_learning_rate(self):
+        reply = QMessageBox.warning(self, "错误", "无效的学习率输入\n请重新输入", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         print(reply)
 
     def invalid_sdae_hiddens(self):

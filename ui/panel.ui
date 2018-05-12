@@ -259,8 +259,8 @@
    <widget class="QLabel" name="label_hiddens">
     <property name="geometry">
      <rect>
-      <x>1011</x>
-      <y>691</y>
+      <x>1010</x>
+      <y>720</y>
       <width>316</width>
       <height>32</height>
      </rect>
@@ -278,9 +278,9 @@
    <widget class="QLineEdit" name="hiddens">
     <property name="geometry">
      <rect>
-      <x>1011</x>
-      <y>730</y>
-      <width>431</width>
+      <x>1010</x>
+      <y>759</y>
+      <width>430</width>
       <height>31</height>
      </rect>
     </property>
@@ -334,7 +334,7 @@
      <rect>
       <x>1230</x>
       <y>641</y>
-      <width>211</width>
+      <width>210</width>
       <height>31</height>
      </rect>
     </property>
@@ -348,7 +348,7 @@
    <widget class="QLabel" name="label_epochs">
     <property name="geometry">
      <rect>
-      <x>1012</x>
+      <x>1010</x>
       <y>641</y>
       <width>221</width>
       <height>32</height>
@@ -411,16 +411,67 @@
      <string>研究模型(SDAE)</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_epochs_2">
+    <property name="geometry">
+     <rect>
+      <x>1010</x>
+      <y>680</y>
+      <width>243</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>学习率(learning_rate):</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="learning_rate">
+    <property name="geometry">
+     <rect>
+      <x>1268</x>
+      <y>680</y>
+      <width>172</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>0.001</string>
+    </property>
+   </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>1140</x>
-      <y>780</y>
-      <width>195</width>
+      <x>1080</x>
+      <y>809</y>
+      <width>295</width>
       <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="stop_button">
+       <property name="font">
+        <font>
+         <family>Microsoft YaHei UI Light</family>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>终止</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QPushButton" name="clear_button">
        <property name="font">
