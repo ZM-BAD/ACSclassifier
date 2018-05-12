@@ -612,11 +612,11 @@ if __name__ == "__main__":
     dataset = "dataset.csv"
     sample, bleed_label, ischemic_label = read_from_csv(dataset)
     epochs = [300, 500, 1000]
-    learning_rates = [0.001, 0.0005, 0.0001, 0.00005]
+    learning_rates = [0.001, 0.0001, 0.00001]
     hiddens = [[256, 128],                          # model 1, 2 layers
                [32, 8, 2],                          # model 2, 3 layers
-               [128, 16, 8],                        # model 3, 3 layers, more nodes
-               [256, 64, 16],                       # model 4, 3 layers, moore nodes
+               [64, 16, 8],                         # model 3, 3 layers, more nodes
+               [128, 64, 16],                       # model 4, 3 layers, moore nodes
                [256, 128, 64],                      # model 5, 3 layers, mooore nodes
                [256, 128, 64, 32],                  # model 6, 4 layers
                [256, 128, 64, 32, 16]]              # model 7, 5 layers
@@ -626,7 +626,7 @@ if __name__ == "__main__":
     for i in epochs:
         for j in learning_rates:
             lr_experiment(i, j, sample, bleed_label, ischemic_label)
-            for hidden in hiddens:
-                sdae_experiment(i, hidden, j, sample, bleed_label, ischemic_label)
+            # for hidden in hiddens:
+            #     sdae_experiment(i, hidden, j, sample, bleed_label, ischemic_label)
 
-    # So, we train 96 models in total
+    # So, we train 72 models in total
