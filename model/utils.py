@@ -9,6 +9,14 @@ from matplotlib_venn import venn2
 from model.data import read_from_csv
 
 
+def is_float_number(number):
+    try:
+        float(number)
+        return True
+    except:
+        return False
+
+
 # Calculate acc, auc, f1-score, recall, precision
 def evaluate(tol_label, tol_pred):
     """
@@ -51,7 +59,7 @@ def draw_event_graph(result, event, model):
     if model == "lr":
         color = "HotPink"
 
-    result = (result[0], result[1][0], result[2][0], result[3][0], result[4][0])
+    result = (result[0], result[1], result[2], result[3], result[4])
     plt.bar(range(len(result)), result, color=color)
     plt.xticks(range(len(result)), (u"ACC", u"AUC", u"F1-score", u"Recall", u"Precision"))
 

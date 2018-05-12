@@ -8,13 +8,14 @@ from model.utils import *
 
 
 # LR train as benchmark
-def lr_experiment(dataset_path, epoch):
+def lr_experiment(dataset_path, epoch, learning_rate):
     """
     :param dataset_path: <string>
     :param epoch: <string>
+    :param learning_rate: <string>
     :return:
     """
-
+    learning_rate = float(learning_rate)
     sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
     n_class = 2
     n_feature = len(sample[0])
@@ -40,16 +41,16 @@ def lr_experiment(dataset_path, epoch):
     # y_ is real
     y_ = tf.placeholder(tf.float32, [None, n_class])
     cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
-    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+    train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
         split_label = bleed_label[:, 0]
         kf = StratifiedKFold(n_splits=5, shuffle=True)
         count = 0
         all_y_test = []
         all_p = []
         for train_index, test_index in kf.split(sample, split_label):
+            sess.run(tf.global_variables_initializer())
             count += 1
 
             x_train = sample[train_index]
@@ -93,10 +94,9 @@ def lr_experiment(dataset_path, epoch):
     # y_ is real
     y_ = tf.placeholder(tf.float32, [None, n_class])
     cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
-    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+    train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
         split_label = ischemic_label[:, 0]
         kf = StratifiedKFold(n_splits=5, shuffle=True)
         count = 0
@@ -104,6 +104,7 @@ def lr_experiment(dataset_path, epoch):
         all_p = []
 
         for train_index, test_index in kf.split(sample, split_label):
+            sess.run(tf.global_variables_initializer())
             count += 1
             x_train = sample[train_index]
             y_train = ischemic_label[train_index]
@@ -136,14 +137,16 @@ def lr_experiment(dataset_path, epoch):
 
 
 # Do SDAE train
-def sdae_experiment(dataset_path, epoch, hiddens_str):
+def sdae_experiment(dataset_path, epoch, hiddens_str, learning_rate):
     """
     :param dataset_path: <string>
     :param epoch: <string>
     :param hiddens_str: <list>
+    :param learning_rate: <string>
     :return:
     """
     epoch = int(epoch)
+    learning_rate = float(learning_rate)
     hiddens = []
     for i in hiddens_str:
         hiddens.append(int(i))
@@ -170,7 +173,7 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
     # y_ is real
     y_ = tf.placeholder(tf.float32, [None, n_class])
     cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
-    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+    train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
     with tf.Session() as sess:
         kf = StratifiedKFold(n_splits=5, shuffle=True)
@@ -231,7 +234,7 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
     # y_ is real
     y_ = tf.placeholder(tf.float32, [None, n_class])
     cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
-    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+    train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
     with tf.Session() as sess:
         kf = StratifiedKFold(n_splits=5, shuffle=True)
@@ -281,5 +284,5 @@ def sdae_experiment(dataset_path, epoch, hiddens_str):
 
 if __name__ == "__main__":
     hiddens = [256, 128, 64]
-    sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 500, hiddens)
-    # lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 500)
+    sdae_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 500, hiddens, 0.001)
+    # lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 500, 0.001)
