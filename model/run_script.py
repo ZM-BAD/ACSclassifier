@@ -7,7 +7,8 @@ import tensorflow as tf
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, recall_score, precision_score
 
-# TODO:
+
+# TODO: 跑好LR的数据，大约3~4个左右吧
 def xavier_init(fan_in, fan_out, constant=1):
     """
     :param fan_in: 输入节点数量
@@ -371,13 +372,13 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
     train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
         split_label = bleed_label[:, 0]
         kf = StratifiedKFold(n_splits=5, shuffle=True)
         count = 0
         all_y_test = []
         all_p = []
         for train_index, test_index in kf.split(sample, split_label):
+            sess.run(tf.global_variables_initializer())
             count += 1
 
             x_train = sample[train_index]
@@ -392,9 +393,10 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
                 all_y_test = np.append(all_y_test, y_test, axis=0)
             for i in range(epoch):
                 _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
-                # p = sess.run(pred, feed_dict={x: x_test})
-                # auc = roc_auc_score(y_test, p)
+                p = sess.run(pred, feed_dict={x: x_test})
+                auc = roc_auc_score(y_test, p)
                 # print(auc)
+                # print(loss)
                 if i % step == 0:
                     # print(loss, i)
                     bleeding_loss.append(loss)
@@ -427,7 +429,6 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
     train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
     with tf.Session() as sess:
-
         split_label = ischemic_label[:, 0]
         kf = StratifiedKFold(n_splits=5, shuffle=True)
         count = 0
@@ -631,7 +632,7 @@ if __name__ == "__main__":
     # model 1, 5, 6, 7形成对照，探究层数对效果的影响
     # model 2, 3, 4, 5形成对照，探究层数一定，节点数对效果的影响
 
-    lr_experiment(500, 0.001, sample, bleed_label, ischemic_label)
+    lr_experiment(400, 0.0001, sample, bleed_label, ischemic_label)
     # for i in epochs:
     #     for j in learning_rates:
     #         lr_experiment(i, j, sample, bleed_label, ischemic_label)
