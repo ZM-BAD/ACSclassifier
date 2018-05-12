@@ -334,15 +334,16 @@ def draw_loss_curve(bleeding_loss, ischemic_loss, k=5):
 
 
 # LR train as benchmark
-def lr_experiment(dataset_path, epoch, learning_rate):
+def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
     """
-    :param dataset_path: <string>
     :param epoch: <string>
     :param learning_rate:
+    :param sample:
+    :param bleed_label:
+    :param ischemic_label:
     :return:
     """
 
-    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
     n_class = 2
     n_feature = len(sample[0])
     bleeding_loss = []
@@ -463,16 +464,17 @@ def lr_experiment(dataset_path, epoch, learning_rate):
 
 
 # Do SDAE train
-def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
+def sdae_experiment(epoch, hiddens, learning_rate, sample, bleed_label, ischemic_label):
     """
-    :param dataset_path: <string>
     :param epoch: <string>
     :param hiddens: <list>
     :param learning_rate:
+    :param sample:
+    :param bleed_label:
+    :param ischemic_label:
     :return:
     """
     epoch = int(epoch)
-    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
     origin_n_input = len(sample[0])
     n_class = 2
     # 抽取后的feature数量
@@ -608,7 +610,8 @@ def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
 
 if __name__ == "__main__":
     dataset = "dataset.csv"
-    epochs = [500, 1000, 1500]
+    sample, bleed_label, ischemic_label = read_from_csv(dataset)
+    epochs = [300, 500, 1000]
     learning_rates = [0.001, 0.0005, 0.0001, 0.00005]
     hiddens = [[256, 128],                          # model 1, 2 layers
                [32, 8, 2],                          # model 2, 3 layers
@@ -622,8 +625,8 @@ if __name__ == "__main__":
 
     for i in epochs:
         for j in learning_rates:
-            lr_experiment(dataset, i, j)
+            lr_experiment(i, j, sample, bleed_label, ischemic_label)
             for hidden in hiddens:
-                sdae_experiment(dataset, i, hidden, j)
+                sdae_experiment(i, hidden, j, sample, bleed_label, ischemic_label)
 
     # So, we train 96 models in total
