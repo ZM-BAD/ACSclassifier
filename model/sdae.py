@@ -71,7 +71,7 @@ class SDAE(object):
                 stacked_dae.append(dae)
         return stacked_dae
 
-    def pre_train(self, train_data, epochs=1000):
+    def pre_train(self, train_data, epochs=500):
         """
         对SDAE进行预训练。所谓'预'是相对于抽取特征之后的训练而言。函数作用类似于DAE中的partial_fit
         :param train_data: 用于训练的数据，是二阶张量
