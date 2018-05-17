@@ -3,13 +3,12 @@ __author__ = 'ZM-BAD'
 
 import tensorflow as tf
 from model.dae import DAE
-from model.utils import *
 
 
 # SDAE is based on DAE, which adds additive Gaussian noise
 class SDAE(object):
-    def __init__(self, n_input, hiddens, n_class=2, transfer_function=tf.nn.softplus, scale=0.1, name='sdae', sess=None,
-                 optimizer=tf.train.AdamOptimizer()):
+    def __init__(self, n_input, hiddens, n_class=2, learning_rate=0.001, transfer_function=tf.nn.softplus, scale=0.1,
+                 name='sdae', sess=None, optimizer=tf.train.AdamOptimizer()):
         """
         :param n_input: number of input nodes
         :param hiddens: list, number of nodes in every hidden layer
@@ -32,17 +31,22 @@ class SDAE(object):
             self.p = None
             self.sess = sess or tf.Session()
 
-            init = tf.global_variables_initializer()
-            self.sess.run(init)
-
             # 网络结构
             self.sdae = self._init_sdae(self.n_input, hiddens)
             self.x = tf.placeholder(tf.float32, [None, n_input], name="input")
-            self.hidden = self.sdae[self.stacks - 1].hidden
+            self.hidden = self.x
+            for dae in self.sdae:
+                self.hidden = dae.encode_func_without_noise(self.hidden)
 
             self.rec = self.hidden
             for dae in reversed(self.sdae):
                 self.rec = dae.decode_func(self.rec)
+
+            y = self.hidden
+            self.pred = tf.nn.softmax(y)
+            self.y_ = tf.placeholder(tf.float32, [None, 2])
+            self.cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(self.y_, y))
+            self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.cross_entropy)
 
     def _init_sdae(self, n_input, hiddens):
         """
@@ -79,17 +83,17 @@ class SDAE(object):
                 stacked_dae.append(dae)
         return stacked_dae
 
-    def train_model(self, x_train, y_train, x_test, epochs=500, learning_rate=0.001, sample_quantity=50):
+    def train_model(self, x_train, y_train, x_test, epochs=500, sample_quantity=50):
         """
-        函数中包含了对SDAE模型的训练，以及在SDAE基础上的LR，训练的时候需要训练集的特征、标签，但是测试集就不需要标签了
-        :param x_train: 用于训练的数据，是二阶张量，是原始数据, without feature extraction
+        This function contains training SDAE model and softmax based on SDAE
+        :param x_train: origin train data without feature extraction
         :param y_train: labels of train set
         :param x_test: origin data without feature extraction
         :param epochs: epoch of training
-        :param learning_rate:
-        :param sample_quantity: loss曲线采样数量
+        :param sample_quantity: loss curve sample quantity
         """
 
+        self.sess.run(tf.global_variables_initializer())
         # Clear the loss array before train
         self.loss.clear()
         step = epochs // sample_quantity
@@ -99,21 +103,18 @@ class SDAE(object):
                 self.sdae[index].partial_fit(temp_train)
             temp_train = self.sdae[index].encode_func(temp_train).eval(session=self.sess)
 
-        y = self.get_hidden(self.x)
-        pred = tf.nn.softmax(y)
-        y_ = tf.placeholder(tf.float32, [None, 2])
-        cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
-        train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
-        self.sess.run(tf.global_variables_initializer())
         for i in range(epochs):
-            _, p, loss = self.sess.run((train_step, pred, cross_entropy), feed_dict={self.x: x_train, y_: y_train})
+            _, p, loss = self.sess.run((self.train_step, self.pred, self.cross_entropy),
+                                       feed_dict={self.x: x_train, self.y_: y_train})
+            # self.print_w_b()
+            # print("*************")
             if i % step == 0:
                 self.loss.append(loss)
 
         if len(self.loss) > sample_quantity:
             self.loss = self.loss[:-1]
 
-        self.p = self.sess.run(pred, feed_dict={self.x: x_test})
+        self.p = self.sess.run(self.pred, feed_dict={self.x: x_test})
 
     def get_hidden(self, x):
         """
@@ -157,34 +158,12 @@ class SDAE(object):
         """
         return self.p
 
-
-# if __name__ == "__main__":
-#     input_n = 20
-#     hiddens_n = [10, 5]
-#     sdae = SDAE(input_n, hiddens_n)
-#     train_x = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
-#                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1]])
-#     test_x = np.array([[1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1]])
-#     hidden = sdae.encode(test_x)
-#     rec_x = sdae.reconstruct(test_x)
-#     # print(rec_x)
-#     print(hidden)
+    def print_w_b(self):
+        """
+        print weights and biases to check if the weights and biases changed
+        """
+        for dae in self.sdae:
+            w = dae.get_weights()
+            b = dae.get_biases()
+            print(w)
+            print(b)

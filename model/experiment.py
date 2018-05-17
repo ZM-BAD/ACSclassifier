@@ -23,7 +23,8 @@ def lr_experiment(dataset_path, epoch, learning_rate):
     bleeding_loss = []
     ischemic_loss = []
 
-    # Collect 50 loss values regardless of the value of epoch
+    # Collect 50 loss values
+    # epoch must larger than sample quantity
     # 最后采集的loss点可能会多一个，比如sample_quantity为101
     # step为2，最后会采集到0, 2, 4, ..., 100共51个点
     sample_quantity = 50
@@ -135,7 +136,7 @@ def lr_experiment(dataset_path, epoch, learning_rate):
     draw_loss_curve(bleeding_loss, ischemic_loss, epoch, sample_quantity)
 
 
-# Do SDAE train
+# SDAE train
 def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
     """
     :param dataset_path: <string>
@@ -155,7 +156,7 @@ def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
     # Binary classification
     n_class = 2
     # loss曲线采样数量
-    sample_quantity = 20
+    sample_quantity = 50
     bleeding_loss = []
     ischemic_loss = []
 
@@ -167,7 +168,7 @@ def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
         count = 0
         all_y_test = []
         all_p = []
-        sdae = SDAE(origin_n_input, hidden_layers, n_class=n_class, sess=sess)
+        sdae = SDAE(origin_n_input, hidden_layers, n_class=n_class, sess=sess, learning_rate=learning_rate)
 
         for train_index, test_index in kf.split(sample, split_label):
             sess.run(tf.global_variables_initializer())
@@ -183,7 +184,7 @@ def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
             else:
                 all_y_test = np.append(all_y_test, y_test, axis=0)
 
-            sdae.train_model(x_train=x_train, y_train=y_train, x_test=x_test, epochs=epoch, learning_rate=learning_rate,
+            sdae.train_model(x_train=x_train, y_train=y_train, x_test=x_test, epochs=epoch,
                              sample_quantity=sample_quantity)
             p = sdae.get_pred()
 
@@ -202,7 +203,7 @@ def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
         count = 0
         all_y_test = []
         all_p = []
-        sdae = SDAE(origin_n_input, hidden_layers, n_class=n_class, sess=sess)
+        sdae = SDAE(origin_n_input, hidden_layers, n_class=n_class, sess=sess, learning_rate=learning_rate)
 
         for train_index, test_index in kf.split(sample, split_label):
             sess.run(tf.global_variables_initializer())
@@ -218,7 +219,7 @@ def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
             else:
                 all_y_test = np.append(all_y_test, y_test, axis=0)
 
-            sdae.train_model(x_train=x_train, y_train=y_train, x_test=x_test, epochs=epoch, learning_rate=learning_rate,
+            sdae.train_model(x_train=x_train, y_train=y_train, x_test=x_test, epochs=epoch,
                              sample_quantity=sample_quantity)
             p = sdae.get_pred()
 
@@ -235,6 +236,6 @@ def sdae_experiment(dataset_path, epoch, hiddens, learning_rate):
 
 
 if __name__ == "__main__":
-    hidden = [128, 64]
+    hidden = [8, 4]
     sdae_experiment("../res/dataset.csv", epoch=40, hiddens=hidden, learning_rate=0.001)
     # lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 500, 0.001)

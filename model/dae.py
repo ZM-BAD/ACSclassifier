@@ -99,11 +99,11 @@ class DAE(object):
     def reconstruct(self, x):
         return self.sess.run(self.reconstruction, feed_dict={self.x: x, self.scale: self.training_scale})
 
-    # 获取隐藏层权重w1
+    # Get hidden layer's weights, w1
     def get_weights(self):
         return self.sess.run(self.weights['w1'])
 
-    # 获取隐藏层偏置b1
+    # Get hidden layer's biases, b1
     def get_biases(self):
         return self.sess.run(self.weights['b1'])
 

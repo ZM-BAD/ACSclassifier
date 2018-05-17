@@ -2,7 +2,6 @@
 __author__ = 'ZM-BAD'
 
 import csv
-
 import numpy as np
 
 
@@ -29,9 +28,9 @@ def read_from_csv(datafile_path):
     for row in reader:
         line += 1
         if line > 0:
-            all_data[line - 1, 0:444] = row[0:444]
+            all_data[line - 1, 0:columns] = row[0:columns]
 
-    for i in range(2930):
+    for i in range(num_of_sample):
         if all_data[i, 0] == 0:
             ischemic_label[i, 1] = 1
         else:
@@ -43,9 +42,9 @@ def read_from_csv(datafile_path):
             bleed_label[i, 0] = 1
 
     # First 2 columns are labels
-    sample = np.zeros([2930, 442])  # only samples
-    for i in range(2930):
-        sample[i, 0:442] = all_data[i, 2:444]
+    sample = np.zeros([num_of_sample, columns - 2])  # only samples
+    for i in range(num_of_sample):
+        sample[i, 0:columns - 2] = all_data[i, 2:columns]
 
     return sample, bleed_label, ischemic_label
 
