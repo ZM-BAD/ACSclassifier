@@ -119,10 +119,14 @@ class MainForm(QMainWindow, Ui_MainWindow):
         # Check if the epoch is valid
         epoch = self.epochs.text()
         if len(epoch) == 0 or not epoch.isdigit():
-            self.invalid_epoch()
+            self.invalid_epoch(0)
             return
 
-        # Check if the learning rate is valid
+        if int(epoch) < 50:
+            self.invalid_epoch(1)
+            return
+
+            # Check if the learning rate is valid
         if not is_float_number(self.learning_rate.text()):
             self.invalid_learning_rate()
             return
@@ -227,9 +231,15 @@ class MainForm(QMainWindow, Ui_MainWindow):
         reply = QMessageBox.warning(self, "错误", "没有选择模型", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         print(reply)
 
-    def invalid_epoch(self):
-        reply = QMessageBox.warning(self, "错误", "无效的epoch参数\n请重新输入", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
-        print(reply)
+    def invalid_epoch(self, x):
+        if x == 0:
+            reply = QMessageBox.warning(self, "错误", "无效的epoch参数\n请重新输入", QMessageBox.Yes | QMessageBox.No,
+                                        QMessageBox.Yes)
+            print(reply)
+        else:
+            reply = QMessageBox.warning(self, "错误", "Epoch不得小于采样数量(50)\n请重新输入", QMessageBox.Yes | QMessageBox.No,
+                                        QMessageBox.Yes)
+            print(reply)
 
     def invalid_learning_rate(self):
         reply = QMessageBox.warning(self, "错误", "无效的学习率输入\n请重新输入", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
