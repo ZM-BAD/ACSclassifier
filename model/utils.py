@@ -51,9 +51,7 @@ def draw_event_graph(result, event, model):
     plt.figure(figsize=(4, 3.35), dpi=100)
     plt.grid(True)
 
-    pic_name = "ischemic.png"
-    if event == "Bleeding events":
-        pic_name = "bleeding.png"
+    pic_name = event + ".png"
 
     color = "CornflowerBlue"
     if model == "lr":
