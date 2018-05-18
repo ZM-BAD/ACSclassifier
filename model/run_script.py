@@ -103,35 +103,39 @@ class DAE(object):
     def reconstruct(self, x):
         return self.sess.run(self.reconstruction, feed_dict={self.x: x, self.scale: self.training_scale})
 
-    # 获取隐藏层权重w1
+    # Get hidden layer's weights, w1
     def get_weights(self):
         return self.sess.run(self.weights['w1'])
 
-    # 获取隐藏层偏置b1
+    # Get hidden layer's biases, b1
     def get_biases(self):
         return self.sess.run(self.weights['b1'])
 
 
 # SDAE is based on DAE, which adds additive Gaussian noise
 class SDAE(object):
-    def __init__(self, n_input, hiddens, transfer_function=tf.nn.softplus, scale=0.1, name='sdae', sess=None,
-                 optimizer=tf.train.AdamOptimizer()):
+    def __init__(self, n_input, hiddens, n_class=2, learning_rate=0.001, transfer_function=tf.nn.softplus, scale=0.1,
+                 name='sdae', sess=None, optimizer=tf.train.AdamOptimizer()):
         """
-        :param n_input: 输入节点数
-        :param hiddens: 每个隐藏层中的神经元数，是一个list
+        :param n_input: number of input nodes
+        :param hiddens: list, number of nodes in every hidden layer
+        :param n_class: number of final classification
         :param transfer_function: transfer(activation) function
-        :param scale: 高斯噪声系数
-        :param optimizer: 优化器
-        :param name: 命名
-        :param sess: 会话，加入此参数用来确保所有的DAE都被同一个Session管理
+        :param scale: Gaussian noise figure
+        :param optimizer:
+        :param name:
+        :param sess:
         """
         self.name = name
         with tf.variable_scope(self.name):
             self.n_input = n_input
-            self.stacks = len(hiddens)
+            self.n_class = n_class
+            self.stacks = len(hiddens) + 1
             self.scale = scale
             self.transfer = transfer_function
             self.optimizer = optimizer
+            self.loss = []
+            self.p = None
             self.sess = sess or tf.Session()
 
             # 网络结构
@@ -139,25 +143,27 @@ class SDAE(object):
             self.x = tf.placeholder(tf.float32, [None, n_input], name="input")
             self.hidden = self.x
             for dae in self.sdae:
-                # self.hidden = dae.encode_func(self.hidden)
                 self.hidden = dae.encode_func_without_noise(self.hidden)
 
             self.rec = self.hidden
             for dae in reversed(self.sdae):
                 self.rec = dae.decode_func(self.rec)
 
-            init = tf.global_variables_initializer()
-            self.sess.run(init)
+            y = self.hidden
+            self.pred = tf.nn.softmax(y)
+            self.y_ = tf.placeholder(tf.float32, [None, 2])
+            self.cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(self.y_, y))
+            self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.cross_entropy)
 
     def _init_sdae(self, n_input, hiddens):
         """
-        多个sdae叠加形成dae，叠加的方式为建立一个list
+        多个dae叠加形成sdae，叠加的方式为建立一个list
         :param n_input: number of input
         :param hiddens: list of num of hidden layers
         :return: layers of dae
         """
         stacked_dae = []
-        for i in range(len(hiddens)):
+        for i in range(len(hiddens) + 1):
             if i is 0:
                 dae = DAE(n_input, hiddens[i],
                           transfer_function=self.transfer,
@@ -166,8 +172,16 @@ class SDAE(object):
                           name="dae_{}".format(i),
                           sess=self.sess)
                 stacked_dae.append(dae)
-            else:
+            elif i < len(hiddens):
                 dae = DAE(hiddens[i - 1], hiddens[i],
+                          transfer_function=self.transfer,
+                          scale=self.scale,
+                          optimizer=self.optimizer,
+                          name="dae_{}".format(i),
+                          sess=self.sess)
+                stacked_dae.append(dae)
+            else:
+                dae = DAE(hiddens[i - 1], self.n_class,
                           transfer_function=self.transfer,
                           scale=self.scale,
                           optimizer=self.optimizer,
@@ -176,18 +190,51 @@ class SDAE(object):
                 stacked_dae.append(dae)
         return stacked_dae
 
-    def pre_train(self, train_data, epochs=500):
+    def train_model(self, x_train, y_train, x_test, epochs=500, sample_quantity=50):
         """
-        对SDAE进行预训练。所谓'预'是相对于抽取特征之后的训练而言。函数作用类似于DAE中的partial_fit
-        :param train_data: 用于训练的数据，是二阶张量
+        This function contains training SDAE model and softmax based on SDAE
+        :param x_train: origin train data without feature extraction
+        :param y_train: labels of train set
+        :param x_test: origin data without feature extraction
         :param epochs: epoch of training
-        :return: return nothing
+        :param sample_quantity: loss curve sample quantity
         """
-        temp_train = train_data
+
+        self.sess.run(tf.global_variables_initializer())
+        # Clear the loss array before train
+        self.loss.clear()
+        step = epochs // sample_quantity
+        temp_train = x_train
         for index in range(self.stacks):
             for i in range(epochs):
                 self.sdae[index].partial_fit(temp_train)
             temp_train = self.sdae[index].encode_func(temp_train).eval(session=self.sess)
+
+        for i in range(epochs):
+            _, p, loss = self.sess.run((self.train_step, self.pred, self.cross_entropy),
+                                       feed_dict={self.x: x_train, self.y_: y_train})
+            print(loss)
+            # self.print_w_b()
+            # print("*************")
+            if i % step == 0:
+                self.loss.append(loss)
+
+        if len(self.loss) > sample_quantity:
+            self.loss = self.loss[:-1]
+
+        self.p = self.sess.run(self.pred, feed_dict={self.x: x_test})
+
+    def get_hidden(self, x):
+        """
+        get latest hidden layer
+        :param x: input data
+        :return: a tensor
+        """
+        y = self.sdae[0].encode_func_without_noise(x)
+        for i in range(1, self.stacks):
+            y = self.sdae[i].encode_func_without_noise(y)
+
+        return y
 
     def encode(self, x):
         """
@@ -204,6 +251,30 @@ class SDAE(object):
         :return: reconstructed data
         """
         return self.sess.run(self.rec, feed_dict={self.x: x})
+
+    def get_loss(self):
+        """
+        loss points of every fold in K-fold cross validation
+        :return: list
+        """
+        return self.loss
+
+    def get_pred(self):
+        """
+        prediction
+        :return:
+        """
+        return self.p
+
+    def print_w_b(self):
+        """
+        print weights and biases to check if the weights and biases changed
+        """
+        for dae in self.sdae:
+            w = dae.get_weights()
+            b = dae.get_biases()
+            print(w)
+            print(b)
 
 
 def read_from_csv(datafile_path):
@@ -229,9 +300,9 @@ def read_from_csv(datafile_path):
     for row in reader:
         line += 1
         if line > 0:
-            all_data[line - 1, 0:444] = row[0:444]
+            all_data[line - 1, 0:columns] = row[0:columns]
 
-    for i in range(2930):
+    for i in range(num_of_sample):
         if all_data[i, 0] == 0:
             ischemic_label[i, 1] = 1
         else:
@@ -243,9 +314,9 @@ def read_from_csv(datafile_path):
             bleed_label[i, 0] = 1
 
     # First 2 columns are labels
-    sample = np.zeros([2930, 442])  # only samples
-    for i in range(2930):
-        sample[i, 0:442] = all_data[i, 2:444]
+    sample = np.zeros([num_of_sample, columns - 2])  # only samples
+    for i in range(num_of_sample):
+        sample[i, 0:columns - 2] = all_data[i, 2:columns]
 
     return sample, bleed_label, ischemic_label
 
@@ -292,7 +363,7 @@ def draw_event_graph(result, event, model, learning_rate, epoch, hiddens=None):
         f.write('epoch = ' + str(epoch) + "\n")
         f.write('learning_rate = ' + str(learning_rate) + "\n")
         if model == "sdae":
-            f.write('hiddens = ' + hiddens + '\n')
+            f.write('hiddens = ' + str(hiddens) + '\n')
         else:
             f.write('hiddens = None\n')
 
@@ -317,47 +388,44 @@ def weighted_mean(loss, k):
     return new_loss
 
 
-# Save loss curve data
-def draw_loss_curve(bleeding_loss, ischemic_loss, k=5):
-    bleeding_loss = weighted_mean(bleeding_loss, k=k)
-    ischemic_loss = weighted_mean(ischemic_loss, k=k)
-    file_name = 'result.txt'
-    with open(file_name, 'a') as f:
-        f.write('bleeding loss:\n')
-        for i in bleeding_loss:
-            f.write(str(i) + ' ')
-        f.write("\n")
-        f.write('ischemic loss:\n')
-        for i in ischemic_loss:
-            f.write(str(i) + ' ')
-        f.write("\n")
-        f.write("##########################################" + "\n")
-
-
 # LR train as benchmark
-def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
+def lr_experiment(dataset_path, epoch, learning_rate):
     """
+    There're 2 LR experiments, bleeding event and ischemic event.
+    :param dataset_path: <string>
     :param epoch: <string>
-    :param learning_rate:
-    :param sample:
-    :param bleed_label:
-    :param ischemic_label:
+    :param learning_rate: <string>
     :return:
     """
+    # Collect 50 loss values
+    sample_quantity = 50
+    epoch = int(epoch)
+    learning_rate = float(learning_rate)
+    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
+    lr_train(sample, bleed_label, epoch, learning_rate, sample_quantity, event='bleeding')
+    lr_train(sample, ischemic_label, epoch, learning_rate, sample_quantity, event='ischemic')
 
+
+def lr_train(sample, label, epoch, learning_rate, sample_quantity, event):
+    """
+    Do a single train
+    :param sample:
+    :param label:
+    :param epoch:
+    :param learning_rate:
+    :param sample_quantity:
+    :param event: <string>, 'bleeding' or 'ischemic'
+    :return: loss array
+    """
     n_class = 2
     n_feature = len(sample[0])
-    bleeding_loss = []
-    ischemic_loss = []
+    loss_points = []
 
-    # Collect 50 loss values regardless of the value of epoch
-    # 最后采集的loss点可能会多一个，比如sample_quantity为101
-    # step为2，最后会采集到0, 2, 4, ..., 100共51个点
-    sample_quantity = 50
-    epoch = int(epoch)
+    # epoch must larger than sample quantity
+    # 最后采集的loss点可能会多一个，比如sample_quantity为101, step为2，最后会采集到0, 2, 4, ..., 100共51个点
+
     step = epoch // sample_quantity
 
-    # Bleeding events
     x = tf.placeholder(tf.float32, [None, n_feature])
     w = tf.Variable(tf.zeros([n_feature, n_class]))
     b = tf.Variable(tf.zeros([n_class]))
@@ -372,8 +440,9 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
     train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
     with tf.Session() as sess:
-        split_label = bleed_label[:, 0]
         kf = StratifiedKFold(n_splits=5, shuffle=True)
+        split_label = label[:, 0]
+        # count用来计算当前是K折中的哪一折
         count = 0
         all_y_test = []
         all_p = []
@@ -382,27 +451,24 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
             count += 1
 
             x_train = sample[train_index]
-            y_train = bleed_label[train_index]
-
+            y_train = label[train_index]
             x_test = sample[test_index]
-            y_test = bleed_label[test_index]
+            y_test = label[test_index]
 
             if count == 1:
                 all_y_test = y_test
             else:
                 all_y_test = np.append(all_y_test, y_test, axis=0)
+
             for i in range(epoch):
                 _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
-                p = sess.run(pred, feed_dict={x: x_test})
-                auc = roc_auc_score(y_test, p)
-                # print(auc)
-                # print(loss)
+                print(loss)
                 if i % step == 0:
                     # print(loss, i)
-                    bleeding_loss.append(loss)
+                    loss_points.append(loss)
             # 可能会多一个
-            if len(bleeding_loss) % sample_quantity > 0:
-                bleeding_loss = bleeding_loss[:-1]
+            if len(loss_points) % sample_quantity > 0:
+                loss_points = loss_points[:-1]
 
             p = sess.run(pred, feed_dict={x: x_test})
             if count == 1:
@@ -410,233 +476,90 @@ def lr_experiment(epoch, learning_rate, sample, bleed_label, ischemic_label):
             else:
                 all_p = np.append(all_p, p, axis=0)
 
-        bleeding_result = evaluate(all_y_test, all_p)
-        draw_event_graph(bleeding_result, event="Bleeding", model="lr", learning_rate=learning_rate, epoch=epoch)
-
-    ##########################################################################
-    # Ischemic events
-    x = tf.placeholder(tf.float32, [None, n_feature])
-    w = tf.Variable(tf.zeros([n_feature, n_class]))
-    b = tf.Variable(tf.zeros([n_class]))
-
-    # y is prediction
-    y = tf.matmul(x, w) + b
-    pred = tf.nn.softmax(y)
-
-    # y_ is real
-    y_ = tf.placeholder(tf.float32, [None, n_class])
-    cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
-    train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
-
-    with tf.Session() as sess:
-        split_label = ischemic_label[:, 0]
-        kf = StratifiedKFold(n_splits=5, shuffle=True)
-        count = 0
-        all_y_test = []
-        all_p = []
-
-        for train_index, test_index in kf.split(sample, split_label):
-            sess.run(tf.global_variables_initializer())
-            count += 1
-            x_train = sample[train_index]
-            y_train = ischemic_label[train_index]
-
-            x_test = sample[test_index]
-            y_test = ischemic_label[test_index]
-
-            if count == 1:
-                all_y_test = y_test
-            else:
-                all_y_test = np.append(all_y_test, y_test, axis=0)
-
-            for i in range(epoch):
-                _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
-                p = sess.run(pred, feed_dict={x: x_test})
-                # print(loss)
-                auc = roc_auc_score(y_test, p)
-                print(auc)
-                if i % step == 0:
-                    # print(loss, i)
-                    ischemic_loss.append(loss)
-            if len(ischemic_loss) % sample_quantity > 0:
-                ischemic_loss = ischemic_loss[:-1]
-            p = sess.run(pred, feed_dict={x: x_test})
-            if count == 1:
-                all_p = p
-            else:
-                all_p = np.append(all_p, p, axis=0)
-
-        ischemic_result = evaluate(all_y_test, all_p)
-        draw_event_graph(ischemic_result, event="Ischemic", model="lr", learning_rate=learning_rate, epoch=epoch)
-
-    draw_loss_curve(bleeding_loss, ischemic_loss)
+        result = evaluate(all_y_test, all_p)
+        draw_event_graph(result, event=event, model="lr", learning_rate=learning_rate, epoch=epoch)
 
 
-# Do SDAE train
-def sdae_experiment(epoch, hiddens, learning_rate, sample, bleed_label, ischemic_label):
+# SDAE train
+def sdae_experiment(dataset_path, epoch, hidden_layers, learning_rate):
     """
+    There're 2 SDAE experiments, bleeding event and ischemic event.
+    :param dataset_path: <string>
     :param epoch: <string>
-    :param hiddens: <list>
-    :param learning_rate:
-    :param sample:
-    :param bleed_label:
-    :param ischemic_label:
-    :return:
+    :param hidden_layers: <list>
+    :param learning_rate: <string>
     """
     epoch = int(epoch)
+    learning_rate = float(learning_rate)
+    hiddens = []
+    for i in hidden_layers:
+        hiddens.append(int(i))
+
+    # Get samples and labels
+    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
+
+    # Collect 50 loss values
+    sample_quantity = 50
+
+    sdae_train(sample, bleed_label, epoch, hiddens, learning_rate, sample_quantity, event='bleeding')
+    sdae_train(sample, ischemic_label, epoch, hiddens, learning_rate, sample_quantity, event='ischemic')
+
+
+def sdae_train(sample, label, epoch, hidden_layers, learning_rate, sample_quantity, event):
+    """
+    Do a single SDAE train
+    :param sample:
+    :param label:
+    :param epoch:
+    :param hidden_layers:
+    :param learning_rate:
+    :param sample_quantity:
+    :param event: <string> 'bleeding' or 'ischemic'
+    :return: loss array
+    """
     origin_n_input = len(sample[0])
     n_class = 2
-    # 抽取后的feature数量
-    extract_feature_n = hiddens[-1]
-    # loss曲线的采样数量
-    sample_quantity = 50
-    step = epoch // sample_quantity
-    bleeding_loss = []
-    ischemic_loss = []
-
-    # Bleeding events
-    x = tf.placeholder(tf.float32, [None, extract_feature_n])
-    w = tf.Variable(tf.zeros([extract_feature_n, n_class]))
-    b = tf.Variable(tf.zeros([n_class]))
-
-    # y is prediction
-    y = tf.matmul(x, w) + b
-    pred = tf.nn.softmax(y)
-
-    # y_ is real
-    y_ = tf.placeholder(tf.float32, [None, n_class])
-    cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
-    train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
+    loss_points = []
 
     with tf.Session() as sess:
         kf = StratifiedKFold(n_splits=5, shuffle=True)
-        split_label = bleed_label[:, 0]
+        split_label = label[:, 0]
+        # count用来计算当前是K折中的哪一折
         count = 0
         all_y_test = []
         all_p = []
-        sdae = SDAE(origin_n_input, hiddens)
+        sdae = SDAE(origin_n_input, hidden_layers, n_class=n_class, sess=sess, learning_rate=learning_rate)
 
         for train_index, test_index in kf.split(sample, split_label):
             sess.run(tf.global_variables_initializer())
             count += 1
-            # Get train set and test set
-            x_train = sample[train_index]
-            y_train = bleed_label[train_index]
 
+            x_train = sample[train_index]
+            y_train = label[train_index]
             x_test = sample[test_index]
-            y_test = bleed_label[test_index]
+            y_test = label[test_index]
 
             if count == 1:
                 all_y_test = y_test
             else:
                 all_y_test = np.append(all_y_test, y_test, axis=0)
 
-            # SDAE本质上是无监督的，所以不需要label，训练SDAE用x_train即可
-            # 对特征抽取后，有一层Softmax，但是对于二分类而言，Softmax退化为LR
-            # LR是监督学习，需要训练。LR训练的样本是x_train抽取出来的x_extract_train，而样本标签依旧为y_train
-            sdae.pre_train(x_train)
-            x_extract_train = sdae.encode(x_train)
-            x_extract_test = sdae.encode(x_test)
-            for i in range(epoch):
-                _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_extract_train, y_: y_train})
-                if i % step == 0:
-                    bleeding_loss.append(loss)
+            sdae.train_model(x_train=x_train, y_train=y_train, x_test=x_test, epochs=epoch,
+                             sample_quantity=sample_quantity)
+            loss_points.append(sdae.get_loss())
 
-            if len(bleeding_loss) % sample_quantity > 0:
-                bleeding_loss = bleeding_loss[:-1]
-
-            p = sess.run(pred, feed_dict={x: x_extract_test})
+            p = sdae.get_pred()
             if count == 1:
                 all_p = p
             else:
                 all_p = np.append(all_p, p, axis=0)
 
-        bleeding_result = evaluate(all_y_test, all_p)
-        draw_event_graph(bleeding_result, event="Bleeding", model="sdae", learning_rate=learning_rate,
-                         epoch=epoch, hiddens=str(hiddens))
-
-    # ##########################################################################
-    # # Ischemic events
-    x = tf.placeholder(tf.float32, [None, extract_feature_n])
-    w = tf.Variable(tf.zeros([extract_feature_n, n_class]))
-    b = tf.Variable(tf.zeros([n_class]))
-
-    # y is prediction
-    y = tf.matmul(x, w) + b
-    pred = tf.nn.softmax(y)
-
-    # y_ is real
-    y_ = tf.placeholder(tf.float32, [None, n_class])
-    cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(y_, y))
-    train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
-
-    with tf.Session() as sess:
-        kf = StratifiedKFold(n_splits=5, shuffle=True)
-        split_label = ischemic_label[:, 0]
-        count = 0
-        all_y_test = []
-        all_p = []
-        sdae = SDAE(origin_n_input, hiddens)
-
-        for train_index, test_index in kf.split(sample, split_label):
-            sess.run(tf.global_variables_initializer())
-            count += 1
-            # Get train set and test set
-            x_train = sample[train_index]
-            y_train = ischemic_label[train_index]
-
-            x_test = sample[test_index]
-            y_test = ischemic_label[test_index]
-
-            if count == 1:
-                all_y_test = y_test
-            else:
-                all_y_test = np.append(all_y_test, y_test, axis=0)
-
-            sdae.pre_train(x_train)
-            x_extract_train = sdae.encode(x_train)
-            x_extract_test = sdae.encode(x_test)
-            for i in range(epoch):
-                _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_extract_train, y_: y_train})
-                if i % step == 0:
-                    ischemic_loss.append(loss)
-
-            if len(ischemic_loss) % sample_quantity > 0:
-                ischemic_loss = ischemic_loss[:-1]
-
-            p = sess.run(pred, feed_dict={x: x_extract_test})
-            if count == 1:
-                all_p = p
-            else:
-                all_p = np.append(all_p, p, axis=0)
-
-        ischemic_result = evaluate(all_y_test, all_p)
-        draw_event_graph(ischemic_result, event="Ischemic", model="sdae", learning_rate=learning_rate,
-                         epoch=epoch, hiddens=str(hiddens))
-
-    draw_loss_curve(bleeding_loss, ischemic_loss)
+        result = evaluate(all_y_test, all_p)
+        draw_event_graph(result, event, "sdae", learning_rate=learning_rate, epoch=epoch, hiddens=hidden_layers)
 
 
 if __name__ == "__main__":
     dataset = "../res/dataset.csv"
-    sample, bleed_label, ischemic_label = read_from_csv(dataset)
-    epochs = [300, 500, 1000]
-    learning_rates = [0.001, 0.0001, 0.00001]
-    hiddens = [[256, 128],                          # model 1, 2 layers
-               [32, 8, 2],                          # model 2, 3 layers
-               [64, 16, 8],                         # model 3, 3 layers, more nodes
-               [128, 64, 16],                       # model 4, 3 layers, moore nodes
-               [256, 128, 64],                      # model 5, 3 layers, mooore nodes
-               [256, 128, 64, 32],                  # model 6, 4 layers
-               [256, 128, 64, 32, 16]]              # model 7, 5 layers
-    # model 1, 5, 6, 7形成对照，探究层数对效果的影响
-    # model 2, 3, 4, 5形成对照，探究层数一定，节点数对效果的影响
-
-    lr_experiment(400, 0.0001, sample, bleed_label, ischemic_label)
-    # for i in epochs:
-    #     for j in learning_rates:
-    #         lr_experiment(i, j, sample, bleed_label, ischemic_label)
-    #         # for hidden in hiddens:
-    #         #     sdae_experiment(i, hidden, j, sample, bleed_label, ischemic_label)
-
-    # So, we train 72 models in total
+    hidden = [8, 4]
+    sdae_experiment(dataset, epoch=50, hidden_layers=hidden, learning_rate=0.001)
+    # lr_experiment(dataset, 50, 0.001)
