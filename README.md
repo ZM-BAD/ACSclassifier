@@ -10,9 +10,9 @@
 **本研究中使用到的数据集不对外提供，还请见谅。代码中数据集路径为/res/dataset.csv**
 
 模型架构大致如下：
-
+<div align=center>
 ![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/new_model.png)
-
+</div>
 
 ~~但是实际可能不按照模型来实现，所以模型仅为参考~~ 
 
