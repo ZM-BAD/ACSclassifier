@@ -46,6 +46,16 @@ def read_from_csv(datafile_path):
     for i in range(num_of_sample):
         sample[i, 0:columns - 2] = all_data[i, 2:columns]
 
+    # Scale the feature values
+    for i in range(3, 110):
+        array = sample[:, i]
+        max_value = max(array)
+        min_value = min(array)
+        scale = max_value - min_value
+        for j in range(num_of_sample):
+            sample[j, i] -= min_value
+            sample[j, i] /= scale
+
     return sample, bleed_label, ischemic_label
 
 
