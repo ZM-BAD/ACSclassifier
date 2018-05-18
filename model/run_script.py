@@ -8,7 +8,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, recall_score, precision_score
 
 
-# TODO: 跑好LR的数据，大约3~4个左右吧
 def xavier_init(fan_in, fan_out, constant=1):
     """
     :param fan_in: 输入节点数量
@@ -348,7 +347,7 @@ def evaluate(tol_label, tol_pred):
     y_pred = np.argmax(tol_pred, axis=1)
 
     accuracy = accuracy_score(y_true, y_pred)
-    auc = roc_auc_score(tol_label, tol_pred)
+    auc = roc_auc_score(tol_label, tol_pred, average=None)
 
     precision = precision_score(y_true, y_pred, average='weighted')
     recall = recall_score(y_true, y_pred, average='weighted')
@@ -369,7 +368,7 @@ def draw_event_graph(result, event, model, learning_rate, epoch, hiddens=None):
     :return:
     """
     file_name = "result.txt"
-    result = (result[0], result[1], result[2], result[3], result[4])
+    result = (result[0], result[1][0], result[2], result[3], result[4])
     with open(file_name, 'a') as f:
         f.write(model + " model " + event + "\n")
 
@@ -475,7 +474,9 @@ def lr_train(sample, label, epoch, learning_rate, sample_quantity, event):
 
             for i in range(epoch):
                 _, p, loss = sess.run((train_step, pred, cross_entropy), feed_dict={x: x_train, y_: y_train})
-                print(loss)
+                p = sess.run(pred, feed_dict={x: x_test})
+                auc = roc_auc_score(y_test, p)
+                print(loss, auc)
                 if i % step == 0:
                     # print(loss, i)
                     loss_points.append(loss)
