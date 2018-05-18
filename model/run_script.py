@@ -190,12 +190,13 @@ class SDAE(object):
                 stacked_dae.append(dae)
         return stacked_dae
 
-    def train_model(self, x_train, y_train, x_test, epochs=500, sample_quantity=50):
+    def train_model(self, x_train, y_train, x_test, y_test, epochs=500, sample_quantity=50):
         """
         This function contains training SDAE model and softmax based on SDAE
         :param x_train: origin train data without feature extraction
         :param y_train: labels of train set
         :param x_test: origin data without feature extraction
+        :param y_test: labels of test set
         :param epochs: epoch of training
         :param sample_quantity: loss curve sample quantity
         """
@@ -213,7 +214,9 @@ class SDAE(object):
         for i in range(epochs):
             _, p, loss = self.sess.run((self.train_step, self.pred, self.cross_entropy),
                                        feed_dict={self.x: x_train, self.y_: y_train})
-            print(loss)
+            p = self.sess.run(self.pred, feed_dict={self.x: x_test})
+            auc = roc_auc_score(y_test, p)
+            print(loss, auc)
             # self.print_w_b()
             # print("*************")
             if i % step == 0:
@@ -317,6 +320,16 @@ def read_from_csv(datafile_path):
     sample = np.zeros([num_of_sample, columns - 2])  # only samples
     for i in range(num_of_sample):
         sample[i, 0:columns - 2] = all_data[i, 2:columns]
+
+    # Scale the feature values
+    for i in range(3, 110):
+        array = sample[:, i]
+        max_value = max(array)
+        min_value = min(array)
+        scale = max_value - min_value
+        for j in range(num_of_sample):
+            sample[j, i] -= min_value
+            sample[j, i] /= scale
 
     return sample, bleed_label, ischemic_label
 
@@ -544,7 +557,7 @@ def sdae_train(sample, label, epoch, hidden_layers, learning_rate, sample_quanti
             else:
                 all_y_test = np.append(all_y_test, y_test, axis=0)
 
-            sdae.train_model(x_train=x_train, y_train=y_train, x_test=x_test, epochs=epoch,
+            sdae.train_model(x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test, epochs=epoch,
                              sample_quantity=sample_quantity)
             loss_points.append(sdae.get_loss())
 
@@ -562,4 +575,7 @@ if __name__ == "__main__":
     dataset = "../res/dataset.csv"
     hidden = [8, 4]
     sdae_experiment(dataset, epoch=50, hidden_layers=hidden, learning_rate=0.001)
-    # lr_experiment(dataset, 50, 0.001)
+    # lr_experiment(dataset, 300, 0.001)
+    # lr_experiment(dataset, 100, 0.001)
+    # lr_experiment(dataset, 200, 0.001)
+    # lr_experiment(dataset, 200, 0.0001)
