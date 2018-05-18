@@ -188,5 +188,5 @@ def sdae_train(sample, label, epoch, hidden_layers, learning_rate, sample_quanti
 
 if __name__ == "__main__":
     hidden = [8, 4]
-    sdae_experiment("../res/dataset.csv", epoch=40, hidden_layers=hidden, learning_rate=0.001)
+    sdae_experiment("../res/dataset.csv", epoch=50, hidden_layers=hidden, learning_rate=0.001)
     # lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 500, 0.001)
