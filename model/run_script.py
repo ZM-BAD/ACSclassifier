@@ -349,9 +349,9 @@ def evaluate(tol_label, tol_pred):
     accuracy = accuracy_score(y_true, y_pred)
     auc = roc_auc_score(tol_label, tol_pred, average=None)
 
-    precision = precision_score(y_true, y_pred, average='weighted')
-    recall = recall_score(y_true, y_pred, average='weighted')
-    f_score = f1_score(y_true, y_pred, average='weighted')
+    precision = precision_score(y_true, y_pred, average=None)
+    recall = recall_score(y_true, y_pred, average=None)
+    f_score = f1_score(y_true, y_pred, average=None)
 
     return accuracy, auc, f_score, recall, precision
 
@@ -368,7 +368,7 @@ def draw_event_graph(result, event, model, learning_rate, epoch, hiddens=None):
     :return:
     """
     file_name = "result.txt"
-    result = (result[0], result[1][0], result[2], result[3], result[4])
+    result = (result[0], result[1][0], result[2][0], result[3][0], result[4][0])
     with open(file_name, 'a') as f:
         f.write(model + " model " + event + "\n")
 
