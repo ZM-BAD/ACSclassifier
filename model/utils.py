@@ -31,11 +31,11 @@ def evaluate(tol_label, tol_pred):
     y_pred = np.argmax(tol_pred, axis=1)
 
     accuracy = accuracy_score(y_true, y_pred)
-    auc = roc_auc_score(tol_label, tol_pred)
+    auc = roc_auc_score(tol_label, tol_pred, average=None)
 
-    precision = precision_score(y_true, y_pred, average='weighted')
-    recall = recall_score(y_true, y_pred, average='weighted')
-    f_score = f1_score(y_true, y_pred, average='weighted')
+    precision = precision_score(y_true, y_pred, average=None)
+    recall = recall_score(y_true, y_pred, average=None)
+    f_score = f1_score(y_true, y_pred, average=None)
 
     return accuracy, auc, f_score, recall, precision
 
@@ -57,7 +57,7 @@ def draw_event_graph(result, event, model):
     if model == "lr":
         color = "HotPink"
 
-    result = (result[0], result[1], result[2], result[3], result[4])
+    result = (result[0], result[1][0], result[2][0], result[3][0], result[4][0])
     plt.bar(range(len(result)), result, color=color)
     plt.xticks(range(len(result)), (u"ACC", u"AUC", u"F1-score", u"Recall", u"Precision"))
 
