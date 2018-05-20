@@ -18,8 +18,7 @@
 1. 利用SDAE对输入层进行特征抽取
 2. 运用LR(逻辑回归)进行分类，作为benchmark
 3. 在抽取的特征基础之上跑Softmax分类
-4. 进行Dropout，防止过拟合
-5. 输出F1-score、Recall、Precision、AUC值
+4. 输出F1-score、Recall、Precision、AUC值
 
 
 除了算法模型以外，该研究最终还要以良好的UI呈现给用户。**软件界面如下**：
