@@ -66,4 +66,4 @@ pip install -r requirements.txt
 - [x] 为整个系统构建GUI界面
 - [x] 模块间联调，整个代码跑起来
 - [x] Code Review
-- [ ] 调试参数，跑出理想结果
+- [x] 调试参数，获得多数数据进行对照分析
