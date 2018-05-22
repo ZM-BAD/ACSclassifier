@@ -24,9 +24,11 @@
 除了算法模型以外，该研究最终还要以良好的UI呈现给用户。**软件界面如下**：
 
 
-![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/new_panel.png)
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/panel_1.png)
 
-![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/new_panel_2.png)
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/panel_2.png)
+
+![](https://raw.githubusercontent.com/ZM-BAD/ACSclassifier/master/res/docs/panel_3.png)
 
 
 ## Dependencies
