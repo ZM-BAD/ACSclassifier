@@ -9,23 +9,26 @@ from model.utils import *
 
 
 # LR train as benchmark
-def lr_experiment(dataset_path, epoch, learning_rate):
+def lr_experiment(dataset_path, bleeding_epoch, ischemic_epoch, bleeding_lr, ischemic_lr):
     """
     There're 2 LR experiments, bleeding event and ischemic event.
     :param dataset_path: <string>
-    :param epoch: <string>
-    :param learning_rate: <string>
+    :param bleeding_epoch: <string>
+    :param ischemic_epoch: <string>
+    :param bleeding_lr: <float>
+    :param ischemic_lr: <float>
     :return:
     """
     # Collect 50 loss values
     sample_quantity = 50
-    epoch = int(epoch)
-    learning_rate = float(learning_rate)
-    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
-    bleeding_loss = lr_train(sample, bleed_label, epoch, learning_rate, sample_quantity, event='bleeding')
-    ischemic_loss = lr_train(sample, ischemic_label, epoch, learning_rate, sample_quantity, event='ischemic')
+    bleeding_epoch = int(bleeding_epoch)
+    ischemic_epoch = int(ischemic_epoch)
 
-    draw_loss_curve(bleeding_loss, ischemic_loss, epoch, sample_quantity)
+    sample, bleed_label, ischemic_label = read_from_csv(dataset_path)
+    bleeding_loss = lr_train(sample, bleed_label, bleeding_epoch, bleeding_lr, sample_quantity, event='bleeding')
+    ischemic_loss = lr_train(sample, ischemic_label, ischemic_epoch, ischemic_lr, sample_quantity, event='ischemic')
+
+    draw_loss_curve(bleeding_loss, ischemic_loss, bleeding_epoch, ischemic_epoch, sample_quantity)
 
 
 def lr_train(sample, label, epoch, learning_rate, sample_quantity, event):
@@ -104,16 +107,19 @@ def lr_train(sample, label, epoch, learning_rate, sample_quantity, event):
 
 
 # SDAE train
-def sdae_experiment(dataset_path, epoch, hidden_layers, learning_rate):
+def sdae_experiment(dataset_path, bleeding_epoch, ischemic_epoch, hidden_layers, bleeding_lr, ischemic_lr):
     """
     There're 2 SDAE experiments, bleeding event and ischemic event.
     :param dataset_path: <string>
-    :param epoch: <string>
+    :param bleeding_epoch: <string>
+    :param ischemic_epoch: <string>
     :param hidden_layers: <list>
-    :param learning_rate: <string>
+    :param bleeding_lr: <float>
+    :param ischemic_lr: <float>
     """
-    epoch = int(epoch)
-    learning_rate = float(learning_rate)
+    bleeding_epoch = int(bleeding_epoch)
+    ischemic_epoch = int(ischemic_epoch)
+
     hiddens = []
     for i in hidden_layers:
         hiddens.append(int(i))
@@ -124,10 +130,12 @@ def sdae_experiment(dataset_path, epoch, hidden_layers, learning_rate):
     # Collect 50 loss values
     sample_quantity = 50
 
-    bleeding_loss = sdae_train(sample, bleed_label, epoch, hiddens, learning_rate, sample_quantity, event='bleeding')
-    ischemic_loss = sdae_train(sample, ischemic_label, epoch, hiddens, learning_rate, sample_quantity, event='ischemic')
+    bleeding_loss = sdae_train(sample, bleed_label, bleeding_epoch, hiddens, bleeding_lr, sample_quantity,
+                               event='bleeding')
+    ischemic_loss = sdae_train(sample, ischemic_label, ischemic_epoch, hiddens, ischemic_lr, sample_quantity,
+                               event='ischemic')
 
-    draw_loss_curve(bleeding_loss, ischemic_loss, epoch, sample_quantity)
+    draw_loss_curve(bleeding_loss, ischemic_loss, bleeding_epoch, ischemic_epoch, sample_quantity)
 
 
 def sdae_train(sample, label, epoch, hidden_layers, learning_rate, sample_quantity, event):
@@ -188,5 +196,6 @@ def sdae_train(sample, label, epoch, hidden_layers, learning_rate, sample_quanti
 
 if __name__ == "__main__":
     hidden = [8, 4]
-    sdae_experiment("../res/dataset.csv", epoch=50, hidden_layers=hidden, learning_rate=0.001)
-    # lr_experiment("C:/Users/ZM-BAD/Projects/ACSclassifier/res/dataset.csv", 500, 0.001)
+    sdae_experiment("../res/dataset.csv", bleeding_epoch=50, ischemic_epoch=50, hidden_layers=hidden, bleeding_lr=0.001,
+                    ischemic_lr=0.001)
+    lr_experiment("../res/dataset.csv", 500, 500, 0.001, 0.001)

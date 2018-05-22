@@ -13,26 +13,32 @@ from model.utils import *
 class ModelThread(QThread):
     finished = pyqtSignal()
 
-    def __init__(self, dataset_path, model, epochs, learning_rate, hiddens):
+    def __init__(self, dataset_path, model, bleeding_epochs, ischemic_epochs, bleeding_lr, ischemic_lr, hiddens):
         """
         :param dataset_path:
         :param model: "lr" or "sdae"
-        :param epochs: <string>
-        :param learning_rate: <string>
+        :param bleeding_epochs: <string>
+        :param ischemic_epochs: <string>
+        :param bleeding_lr: <string>
+        :param ischemic_lr: <string>
         :param hiddens: <string>
         """
         super(ModelThread, self).__init__()
         self.dataset_path = dataset_path
         self.model = model
-        self.epochs = epochs
+        self.bleeding_epochs = bleeding_epochs
+        self.ischemic_epochs = ischemic_epochs
         self.hiddens = hiddens
-        self.learning_rate = learning_rate
+        self.bleeding_lr = bleeding_lr
+        self.ischemic_lr = ischemic_lr
 
     def run(self):
         if self.model == "lr":
-            lr_experiment(self.dataset_path, self.epochs, self.learning_rate)
+            lr_experiment(self.dataset_path, self.bleeding_epochs, self.ischemic_epochs, self.bleeding_lr,
+                          self.ischemic_lr)
         else:
-            sdae_experiment(self.dataset_path, self.epochs, self.hiddens, self.learning_rate)
+            sdae_experiment(self.dataset_path, self.bleeding_epochs, self.ischemic_epochs, self.hiddens,
+                            self.bleeding_lr, self.ischemic_lr)
 
         self.finished.emit()
 
@@ -66,9 +72,11 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.radioButton_lr.clicked.connect(self.show_lr_sketch)
         self.radioButton_sdae.clicked.connect(self.show_sdae_sketch)
 
-        self.lr_thread = ModelThread(self.file_dir.text(), "lr", self.epochs.text(), self.learning_rate.text(),
+        self.lr_thread = ModelThread(self.file_dir.text(), "lr", self.bleeding_epochs.text(),
+                                     self.ischemic_epochs.text(), self.bleeding_lr.text(), self.ischemic_lr.text(),
                                      hiddens=None)
-        self.sdae_thread = ModelThread(self.file_dir.text(), "sdae", self.epochs.text(), self.learning_rate.text(),
+        self.sdae_thread = ModelThread(self.file_dir.text(), "sdae", self.bleeding_epochs.text(),
+                                       self.ischemic_epochs.text(), self.bleeding_lr.text(), self.ischemic_lr.text(),
                                        hiddens=None)
 
         # Once the training thread is finished, the train_button should be accessible
@@ -77,7 +85,7 @@ class MainForm(QMainWindow, Ui_MainWindow):
 
     # Show the LR/SDAE model sketch
     def show_lr_sketch(self):
-        self.model_sketch.setPixmap(QPixmap("../res/pics/lr_sketch.png"))
+        self.model_sketch.setPixmap(QPixmap("../res/pics/softmax_sketch.png"))
 
     def show_sdae_sketch(self):
         self.model_sketch.setPixmap(QPixmap("../res/pics/sdae_sketch.png"))
@@ -117,21 +125,26 @@ class MainForm(QMainWindow, Ui_MainWindow):
             return
 
         # Check if the epoch is valid
-        epoch = self.epochs.text()
-        if len(epoch) == 0 or not epoch.isdigit():
+        bleeding_epoch = self.bleeding_epochs.text()
+        ischemic_epoch = self.ischemic_epochs.text()
+        if len(bleeding_epoch) == 0 or not bleeding_epoch.isdigit():
+            self.invalid_epoch(0)
+            return
+        if len(ischemic_epoch) == 0 or not ischemic_epoch.isdigit():
             self.invalid_epoch(0)
             return
 
-        if int(epoch) < 50:
+        if int(bleeding_epoch) < 50 or int(ischemic_epoch) < 50:
             self.invalid_epoch(1)
             return
 
-            # Check if the learning rate is valid
-        if not is_float_number(self.learning_rate.text()):
+        # Check if the learning rate is valid
+        if not (is_float_number(self.bleeding_lr.text()) and is_float_number(self.ischemic_lr.text())):
             self.invalid_learning_rate()
             return
-        learning_rate = float(self.learning_rate.text())
-        if learning_rate <= 0:
+        bleeding_lr = float(self.bleeding_lr.text())
+        ischemic_lr = float(self.ischemic_lr.text())
+        if bleeding_lr <= 0 or ischemic_lr <= 0:
             self.invalid_learning_rate()
             return
 
@@ -142,8 +155,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
             self.stop_button.setEnabled(True)
             # Then, set the parameters for the model
             self.lr_thread.dataset_path = self.file_dir.text()
-            self.lr_thread.epochs = epoch
-            self.lr_thread.learning_rate = self.learning_rate.text()
+            self.lr_thread.bleeding_epochs = bleeding_epoch
+            self.lr_thread.ischemic_epochs = ischemic_epoch
+            self.lr_thread.bleeding_lr = bleeding_lr
+            self.lr_thread.ischemic_lr = ischemic_lr
             # Start the thread
             self.lr_thread.start()
             self.loss_curve.setPixmap(QPixmap("../res/pics/waiting.png"))
@@ -169,9 +184,11 @@ class MainForm(QMainWindow, Ui_MainWindow):
                     self.train_button.setEnabled(False)
                     self.stop_button.setEnabled(True)
                     self.sdae_thread.dataset_path = self.file_dir.text()
-                    self.sdae_thread.epochs = epoch
+                    self.sdae_thread.bleeding_epochs = bleeding_epoch
+                    self.sdae_thread.ischemic_epochs = ischemic_epoch
                     self.sdae_thread.hiddens = hiddens
-                    self.sdae_thread.learning_rate = self.learning_rate.text()
+                    self.sdae_thread.bleeding_lr = bleeding_lr
+                    self.sdae_thread.ischemic_lr = ischemic_lr
                     self.sdae_thread.start()
                     self.loss_curve.setPixmap(QPixmap("../res/pics/waiting.png"))
                     self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/waiting.png"))
@@ -182,8 +199,10 @@ class MainForm(QMainWindow, Ui_MainWindow):
         self.loss_curve.setPixmap(QPixmap("../res/pics/blank_loss.png").scaled(400, 335))
         self.label_bleeding_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
         self.label_ischemic_event_pic.setPixmap(QPixmap("../res/pics/blank_result.png"))
-        self.epochs.clear()
-        self.learning_rate.clear()
+        self.bleeding_epochs.clear()
+        self.ischemic_epochs.clear()
+        self.bleeding_lr.clear()
+        self.ischemic_lr.clear()
         self.hiddens.clear()
 
     # Terminate training

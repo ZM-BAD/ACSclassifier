@@ -82,13 +82,18 @@ def weighted_mean(loss, k):
 
 
 # Draw loss curve
-def draw_loss_curve(bleeding_loss, ischemic_loss, epoch, sample_quantity, k=5):
+def draw_loss_curve(bleeding_loss, ischemic_loss, bleeding_epoch, ischemic_epoch, sample_quantity, k=5):
     bleeding_loss = weighted_mean(bleeding_loss, k=k)
     ischemic_loss = weighted_mean(ischemic_loss, k=k)
-    step = epoch // sample_quantity
-    x = []
+    bleeding_step = bleeding_epoch // sample_quantity
+    bleeding_x = []
     for i in range(sample_quantity):
-        x.append(i * step)
+        bleeding_x.append(i * bleeding_step)
+
+    ischemic_step = ischemic_epoch // sample_quantity
+    ischemic_x = []
+    for i in range(sample_quantity):
+        ischemic_x.append(i * ischemic_step)
 
     fig = plt.figure(figsize=(4, 3.35), dpi=100)
     ax = fig.add_subplot(111)
@@ -96,9 +101,9 @@ def draw_loss_curve(bleeding_loss, ischemic_loss, epoch, sample_quantity, k=5):
     plt.xlabel("Epoch")
     plt.ylabel('Loss Value')
 
-    plt.plot(x, bleeding_loss, 'r', label='bleeding')
-    plt.plot(x, ischemic_loss, 'b', label='ischemic')
-    plt.xticks(np.linspace(0, epoch, 10, endpoint=True), fontsize='xx-small')
+    plt.plot(bleeding_x, bleeding_loss, 'r', label='bleeding')
+    plt.plot(ischemic_x, ischemic_loss, 'b', label='ischemic')
+    plt.xticks(np.linspace(0, max(bleeding_epoch, ischemic_epoch), 10, endpoint=True), fontsize='xx-small')
     plt.yticks(fontsize='xx-small')
 
     plt.legend(loc='upper right', fontsize='large', frameon=False)
