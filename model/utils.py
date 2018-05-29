@@ -60,6 +60,8 @@ def draw_event_graph(result, event, model):
     result = (result[0], result[1][0], result[2][0], result[3][0], result[4][0])
     plt.bar(range(len(result)), result, color=color)
     plt.xticks(range(len(result)), (u"ACC", u"AUC", u"F1-score", u"Recall", u"Precision"))
+    for a, b in zip(range(len(result)), result):
+        plt.text(a, b + 0.05, '%.3f' % b, ha='center', va='bottom', fontsize=8)
 
     if not os.path.exists("../res/output"):
         os.mkdir("../res/output")
